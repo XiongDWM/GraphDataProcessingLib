@@ -25,7 +25,7 @@
             make the edge for this graph
             建立图形的边
 
-##2. To use the graph 怎么用
+## 2. To use the graph 怎么用
     example:
                 graphStructure.tailed()
             get all Edge for this graph, and remove the nodes within the out_degree == 1

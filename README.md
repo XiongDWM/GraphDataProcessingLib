@@ -1,5 +1,5 @@
-# GraphStructure
-## To organized data in a graph structure in java and then can do breadth-first search or depth-first search in such graph. 将数据组织成图形结构，并能做深搜广搜等搜索
+# GraphStructure 图结构
+## To organized data in a graph structure in java and then can do breadth-first search or depth-first search in such graph. 将数据组织成图结构，并能做深搜广搜等搜索
 ## 1. How to build a graph within GraphStructure。杂个建
     example:    
                 Object[] nodes = {0, 1, 2, 3};

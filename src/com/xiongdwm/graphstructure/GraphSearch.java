@@ -1,15 +1,16 @@
 package com.xiongdwm.graphstructure;
 
 
+import java.lang.reflect.Array;
 import java.util.*;
 
-public class GraphSearch {
+public class GraphSearch<T> {
     private final boolean[] wasVisited;
-    private final Object[] edgeTo;
-    private final GraphStructure G;
-    private final Object theTarget;
-    private final LinkedList<List<Object>> allPaths=new LinkedList<>(); // collection of all recorded paths 所有路径集合
-    private final Stack<Object> path=new Stack<>(); //a single path 一条路径
+    private final T[] edgeTo;
+    private final GraphStructure<T> G;
+    private final T theTarget;
+    private final LinkedList<List<T>> allPaths=new LinkedList<>(); // collection of all recorded paths 所有路径集合
+    private final Stack<T> path=new Stack<>(); //a single path 一条路径
     private int maximumOutDegree; // to limit the path length, 规定路径出度，也就时最多跳数
 
     public enum Manipulate{
@@ -27,18 +28,20 @@ public class GraphSearch {
         }
     }
 
-    public GraphSearch(GraphStructure G, Object root, Manipulate manipulate,Object[] nodesAbandon,Object target,int maximumOutDegree){
+    @SuppressWarnings("unchecked")
+    public GraphSearch(GraphStructure<T> G, T root, Manipulate manipulate,T[] nodesAbandon,T target,int maximumOutDegree){
+        Class<?> clazz = root.getClass();
         this.wasVisited=new boolean[G.getNodesNum()];
-        this.edgeTo=new Object[G.getNodesNum()];
+        this.edgeTo=(T[]) Array.newInstance(clazz,G.getNodesNum());
         this.maximumOutDegree =maximumOutDegree;
         theTarget = target;
         this.G=G;
         for(int i=0;i<G.getNodesNum();i++){
             wasVisited[i]=false;
-            edgeTo[i]=-1;
+            edgeTo[i]=null;
         }
         if(nodesAbandon!=null){
-            for(Object o:nodesAbandon){
+            for(T o:nodesAbandon){
                 setWasVisited(o);
             }
         }
@@ -54,21 +57,21 @@ public class GraphSearch {
         }
     }
 
-    private void dfs(Object root){
+    private void dfs(T root){
         if(root.equals(theTarget)) {
             path.push(root);
-            List<Object> list = new ArrayList<>(path); //store path 转储
+            List<T> list = new ArrayList<>(path); //store path 转储
             allPaths.add(list);
             path.pop();
             wasVisited[G.getIndexOfObject(root)]=false;
             return;
         }
-        Object[] nodes=G.get(root); //adjacency matrix of root at this term 所有子节点
+        T[] nodes=G.get(root); //adjacency matrix of root at this term 所有子节点
         wasVisited[G.getIndexOfObject(root)]=true;
         path.push(root);
         for(int i=0;i< nodes.length;i++){
             int index=G.getIndexOfObject(nodes[i]);
-            if(maximumOutDegree ==0) maximumOutDegree =path.size()+1;
+            if(maximumOutDegree==0) maximumOutDegree =path.size()+1;
             if(!wasVisited[index]&&path.size()< maximumOutDegree){
                 dfs(nodes[i]);
             }
@@ -80,14 +83,14 @@ public class GraphSearch {
         }
     }
 
-    private void bfs(Object root){
+    private void bfs(T root){
         int rootPtr=G.getIndexOfObject(root);
         Queue<Integer> queue=new ArrayDeque<Integer>();
         queue.add(rootPtr);
         wasVisited[rootPtr]=true;
         while(!queue.isEmpty()){
             int index=queue.poll();
-            for(Object o:G.getRow(index)){
+            for(T o:G.getRow(index)){
                 if(o==null)continue;
                 int ptr= G.getIndexOfObject(o);
                 if(!wasVisited[ptr]){
@@ -102,17 +105,17 @@ public class GraphSearch {
 
     }
 
-    public boolean hasPathTo(Object target){
-        if(!G.isNodeIn(target))return false;
+    public boolean hasPathTo(T target){
+        if(G.isNodeIn(target))return false;
         return wasVisited[G.getIndexOfObject(target)];
     }
 
-    public void setWasVisited(Object o){
+    public void setWasVisited(T o){
         wasVisited[G.getIndexOfObject(o)]=true;
     }
 
 
-    public Vector<Object> pathTo(Object target){
+    public Vector<T> pathTo(T target){
         if(!hasPathTo(target)){
             return null;
         }
@@ -122,23 +125,23 @@ public class GraphSearch {
             wait.push(p);
             p= G.getIndexOfObject(edgeTo[p]);
         }
-        Stack<Object> path= new Stack<>();
+        Stack<T> path= new Stack<>();
         while(!wait.isEmpty()){
             path.add(G.getNodes()[wait.pop()]);
         }
         return path;
     }
 
-    public List<Object[]> printAllEdge(Object target){
-        List<Object[]> rs=new ArrayList<>();
-        Object[]roots=G.getNodes();
+    public List<T[]> printAllEdge(T target){
+        List<T[]> rs=new ArrayList<>();
+        T[]roots=G.getNodes();
 
         return rs;
     }
 
-    public void showPath(Object target){
+    public void showPath(T target){
         assert hasPathTo(target);
-        Vector<Object> vector=pathTo(target);
+        Vector<T> vector=pathTo(target);
         for(int i=0;i<vector.size();i++){
             System.out.println(vector.elementAt(i));
             if(i==vector.size()-1){
@@ -149,8 +152,38 @@ public class GraphSearch {
         }
     }
 
-    public LinkedList<List<Object>> getAllPaths() {
+    public LinkedList<List<T>> getAllPaths() {
         return allPaths;
+    }
+
+    public static void main(String[] args) {
+        Long[] nodes = {0L, 1L, 2L, 3L};
+        Long[] nodes0 = {1L, 2L, 3L};
+        Long[] nodes1 = {0L, 2L, 3L};
+        Long[] nodes2 = {0L, 1L};
+        Long[] nodes3 = {0L, 1L};
+        GraphStructure<Long> graphStructure = new GraphStructure<>(nodes);
+        graphStructure.make(0L, nodes0);
+        graphStructure.make(1L, nodes1);
+        graphStructure.make(2L, nodes2);
+        graphStructure.make(3L, nodes3);
+        GraphSearch<Long> dfs = new GraphSearch<>(graphStructure, 2L, GraphSearch.Manipulate.DEPTH_FIRST, null, 3L,3);
+        GraphSearch<Long> bfs=new GraphSearch<>(graphStructure,2L,GraphSearch.Manipulate.BREADTH_FIRST,null,null,0);
+        List<Long> path = bfs.pathTo(3L);
+        System.out.println(path);
+        System.out.println("---------------------------------------------------");
+        System.out.println(dfs.getAllPaths());
+        LinkedList<Object> lst=new LinkedList<>();
+        List<Object> l0=new ArrayList<>(Arrays.asList(nodes0));
+        List<Object> l1=new ArrayList<>(Arrays.asList(nodes1));
+        List<Object> l2=new ArrayList<>(Arrays.asList(nodes2));
+        List<Object> l3=new ArrayList<>(Arrays.asList(nodes3));
+        lst.add(l0);
+        lst.add(l1);
+        lst.add(l2);
+        lst.add(l3);
+        System.out.println("---------------------------------------------------");
+        System.out.println(lst.toString());
     }
 
 }

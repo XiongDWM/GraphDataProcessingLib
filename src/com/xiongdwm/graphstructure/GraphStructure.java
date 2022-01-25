@@ -1,6 +1,7 @@
 package com.xiongdwm.graphstructure;
-/**
- * first time offer some api-like stuff to the community even it seems not useful lol
+/*
+ * @discription first time offer some api to the community even it seems not very useful lol
+ *
  */
 
 import java.lang.reflect.Array;
@@ -9,7 +10,7 @@ import java.util.stream.Collectors;
 
 /**
  * @author xiong
- * @version 1.0
+ * @version 1.01
  *  to put the data into a graph structure
  */
 public class GraphStructure<T> {
@@ -25,7 +26,6 @@ public class GraphStructure<T> {
         this.nodesNum= nodes.length;
         this.edges=new ArrayList<>();
         this.clazz=nodes[0].getClass();
-        System.out.println(clazz);
         matrix= (T[][]) Array.newInstance(clazz,nodesNum,nodesNum);
         for(int i=0;i<nodesNum;i++){
             matrix[i]= (T[]) Array.newInstance(clazz,nodesNum);
@@ -52,11 +52,18 @@ public class GraphStructure<T> {
         return matrix[index];
     }
 
+    @SuppressWarnings("unchecked")
     public void make(T node,T[] context){
-        Array.set(matrix,getIndexOfObject(node),context);
-
+        List<T>list=new ArrayList<>();
+        for(T o:context){
+            if(!isNodeIn(o)) list.add(o);
+        }
+        T[] e=(T[])Array.newInstance(clazz,0);
+        Array.set(matrix,getIndexOfObject(node), list.toArray(e));
+        list=null;
+        e=null;
         for (T o : context) {
-            edges.add(new Edge<T>(node, o));
+            edges.add(new Edge<>(node, o));
         }
     }
 

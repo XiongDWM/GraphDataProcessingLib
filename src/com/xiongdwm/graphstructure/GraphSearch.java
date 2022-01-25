@@ -85,7 +85,7 @@ public class GraphSearch<T> {
 
     private void bfs(T root){
         int rootPtr=G.getIndexOfObject(root);
-        Queue<Integer> queue=new ArrayDeque<Integer>();
+        Queue<Integer> queue=new ArrayDeque<>();
         queue.add(rootPtr);
         wasVisited[rootPtr]=true;
         while(!queue.isEmpty()){
@@ -157,12 +157,14 @@ public class GraphSearch<T> {
     }
 
     public static void main(String[] args) {
-        Long[] nodes = {0L, 1L, 2L, 3L};
+        Long[] nodes = {0L, 1L, 2L, 0L,3L};
         Long[] nodes0 = {1L, 2L, 3L};
         Long[] nodes1 = {0L, 2L, 3L};
         Long[] nodes2 = {0L, 1L};
         Long[] nodes3 = {0L, 1L};
         GraphStructure<Long> graphStructure = new GraphStructure<>(nodes);
+        int a=graphStructure.getIndexOfObject(0L);
+        System.out.println(a);
         graphStructure.make(0L, nodes0);
         graphStructure.make(1L, nodes1);
         graphStructure.make(2L, nodes2);
@@ -183,7 +185,7 @@ public class GraphSearch<T> {
         lst.add(l2);
         lst.add(l3);
         System.out.println("---------------------------------------------------");
-        System.out.println(lst.toString());
+        System.out.println(lst);
     }
 
 }

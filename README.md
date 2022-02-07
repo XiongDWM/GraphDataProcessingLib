@@ -2,19 +2,19 @@
 ## To organized data in a graph structure in java and then can do breadth-first search or depth-first search in such graph. 将数据组织成图结构，并能做深搜广搜等搜索
 ## 1. How to build a graph within GraphStructure。杂个建
     example:    
-                Object[] nodes = {0, 1, 2, 3};
+                Integer[] nodes = {0, 1, 2, 3};
             array of all nodes
             所有参与这个图的节点
 
-                GraphStructure graphStructure = new GraphStructure(nodes);
+                GraphStructure<Integer> graphStructure = new GraphStructure<>(nodes);
             build a graph
             构造图
 
-                Object[] nodes = {0, 1, 2, 3};
-                Object[] nodes0 = {1, 2, 3};
-                Object[] nodes1 = {0, 2, 3};
-                Object[] nodes2 = {0, 1};
-                Object[] nodes3 = {0, 1};
+                Integer[] nodes = {0, 1, 2, 3};
+                Integer[] nodes0 = {1, 2, 3};
+                Integer[] nodes1 = {0, 2, 3};
+                Integer[] nodes2 = {0, 1};
+                Integer[] nodes3 = {0, 1};
             these are adjacency matrix for each node in this graph or says the connected relation for each node
             这些是图中每个点的连接关系
             
@@ -32,7 +32,7 @@
             获取所有边对象，并剪去出度为1的分支
  
             constructor of GraphSearch: 
-                GraphSearch(GraphStructure G, Object root, Manipulate manipulate,Object[] nodesAbandon,Object target,int maximumOutDegree)
+                GraphSearch(GraphStructure<T> G, T root, Manipulate manipulate,T[] nodesAbandon,T target,int maximumOutDegree)
             param 参数：
                 graphStrucure ---> graph needs to manipulate, 需要操作的数据们（图）
                 root ---> start, 开始的节点

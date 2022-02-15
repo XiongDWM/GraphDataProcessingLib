@@ -91,7 +91,7 @@ public class GraphStructure<T> {
      * cut the subfield
      * @return edge set，
      */
-    public List<Edge<?>> tailed(){
+    public List<Edge<T>> tailed(){
         if(get(this.nodes[0]).length==1)return Collections.emptyList(); //出度为1的直接返回;if out-degree for start node is 1, return empty
         List<T> nodesList=new ArrayList<>(Arrays.asList(this.nodes)); //参与的所有节点
 
@@ -100,6 +100,7 @@ public class GraphStructure<T> {
         //Object preVertex=new Object();??? 这里来一个前一个顶点的记录？
         do{
             T node=queue.poll();
+            if(node==null)continue;
             T[] out=get(node); //get方法是取到当前节点连接的节点
             List<T> temp=new ArrayList<>(Arrays.asList(out));
             temp.removeAll(trashBin); //去掉出度中已经计算出的单个连接边节点；get rid of connected nodes which already stored in trashBin
@@ -113,8 +114,10 @@ public class GraphStructure<T> {
         return nodesList.stream().flatMap(o->getEdgeByNode(o,trashBin).stream()).distinct().collect(Collectors.toList());
     }
 
-    private List<Edge<?>> getEdgeByNode(T node,Set<T> trash){
+    private List<Edge<T>> getEdgeByNode(T node,Set<T> trash){
         T[] array=get(node);
-        return Arrays.stream(array).filter(it->!trash.contains(it)).map(o-> new Edge<>(node, o)).collect(Collectors.toList());
+        return Arrays.stream(array).filter(it->!trash.contains(it)&&it!=null).map(o-> new Edge<>(node, o)).collect(Collectors.toList());
     }
+
+
 }

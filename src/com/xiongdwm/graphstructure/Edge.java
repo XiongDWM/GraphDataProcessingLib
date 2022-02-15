@@ -35,7 +35,11 @@ public class Edge<T> {
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + (vertex1.hashCode() + vertex2.hashCode())>>>32;
+        int a=0;
+        int b=0;
+        if(vertex1!=null)a=vertex1.hashCode();
+        if(vertex2!=null)b=vertex2.hashCode();
+        result = prime * result + (a + b)>>>32;
         return result;
 
     }
@@ -45,6 +49,7 @@ public class Edge<T> {
         if(this==obj)return true;
         if(obj == null || getClass() != obj.getClass())return false;
         Edge<?> that=(Edge<?>) obj;
+        if(that.getVertex1()==null&&that.getVertex2()==null||vertex1==null&&vertex2==null)return false;
         if(that.getVertex1().getClass()==vertex2.getClass()&&Objects.equals(that.vertex1,vertex2)&&Objects.equals(that.vertex2,vertex1)){
             return true;
         }
@@ -59,4 +64,5 @@ public class Edge<T> {
                 ", vertex2=" + vertex2 +
                 '}';
     }
+
 }

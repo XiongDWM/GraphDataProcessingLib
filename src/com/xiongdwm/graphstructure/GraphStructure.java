@@ -1,6 +1,6 @@
 package com.xiongdwm.graphstructure;
 /*
- * @discription first time offer some api to the community even it seems not very useful lol
+ * @description first time offer some api to the community even it seems not very useful lol
  *
  */
 
@@ -10,8 +10,8 @@ import java.util.stream.Collectors;
 
 /**
  * @author xiong
- * @version 1.01
- *  to put the data into a graph structure
+ * @version 1.04
+ * put the data into a graph structure
  */
 public class GraphStructure<T> {
     private final int nodesNum;

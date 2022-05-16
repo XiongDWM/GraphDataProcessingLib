@@ -55,7 +55,7 @@ public class GraphSearch<T> {
                 dfs(root);
                 break;
             case DJKSTRA:
-                djkstra();;
+                djkstra();
                 break;
             case NONE_STRUCTURE:
                 break;

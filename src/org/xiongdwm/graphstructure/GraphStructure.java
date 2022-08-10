@@ -1,4 +1,4 @@
-package com.xiongdwm.graphstructure;
+package org.xiongdwm.graphstructure;
 /*
  * @description first time offer some api to the community even it seems not very useful lol
  *

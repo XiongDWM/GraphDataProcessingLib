@@ -1,4 +1,4 @@
-package com.xiongdwm.graphstructure;
+package org.xiongdwm.graphstructure;
 
 import java.util.Objects;
 

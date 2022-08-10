@@ -1,4 +1,4 @@
-package com.xiongdwm.graphstructure;
+package org.xiongdwm.graphstructure;
 
 
 import java.lang.reflect.Array;
@@ -207,6 +207,10 @@ public class GraphSearch<T> {
         lst.add(l3);
         System.out.println("---------------------------------------------------");
         System.out.println(lst);
+        String asfa="fafdasfd#11";
+        System.out.println(asfa.length()+" "+ asfa.lastIndexOf("#"));
+        String subasfa=asfa.substring(asfa.lastIndexOf("#")+1);
+        System.out.println(subasfa);
     }
 
 }

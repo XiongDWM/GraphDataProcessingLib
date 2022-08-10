@@ -186,12 +186,13 @@ public class GraphSearch<T> {
         graphStructure.make(3L, nodes3);
         graphStructure.make(4L, node4);
         graphStructure.make(5L, node5);
-        GraphSearch<Long> dfs = new GraphSearch<>(graphStructure, 2L, GraphSearch.Manipulate.DEPTH_FIRST, null, 4L, 10,3L);
+        GraphSearch<Long> dfs = new GraphSearch<>(graphStructure, 0L, GraphSearch.Manipulate.DEPTH_FIRST, null, 4L, 10,null);
         /*GraphSearch<Long> bfs=new GraphSearch<>(graphStructure,2L,GraphSearch.Manipulate.BREADTH_FIRST,null,null,0);
         List<Long> path = bfs.pathTo(3L);
         System.out.println(path);*/
         List<Edge<Long>> eb = graphStructure.getEdges();
         System.out.println(eb);
+        System.out.println(dfs.getAllPaths());
         List<Edge<Long>> edges = graphStructure.tailed();
         System.out.println(edges);
         System.out.println("--!!!!!!!-------------------------------------------------");
@@ -207,10 +208,7 @@ public class GraphSearch<T> {
         lst.add(l3);
         System.out.println("---------------------------------------------------");
         System.out.println(lst);
-        String asfa="fafdasfd#11";
-        System.out.println(asfa.length()+" "+ asfa.lastIndexOf("#"));
-        String subasfa=asfa.substring(asfa.lastIndexOf("#")+1);
-        System.out.println(subasfa);
+
     }
 
 }

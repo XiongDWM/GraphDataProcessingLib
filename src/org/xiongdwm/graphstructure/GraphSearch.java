@@ -8,16 +8,18 @@ public class GraphSearch<T> {
     private final boolean[] wasVisited;
     private final T[] edgeTo;
     private final GraphStructure<T> G;
-    private final T theTarget;
+    private T theTarget;
     private final LinkedList<List<T>> allPaths = new LinkedList<>(); // collection of all recorded paths 所有路径集合
     private final Stack<T> path = new Stack<>(); //a single path 一条路径
     private int maximumOutDegree; // to limit the path length, 规定路径出度，也就时最多跳数
     private final T dominator; // dominator 必经节点
+    private final List<Edge<T>>minConnection= new ArrayList<>();
 
     public enum Manipulate {
         BREADTH_FIRST("广度优先"),
         DEPTH_FIRST("深度优先"),
         DJKSTRA("Djkstra"),
+        PRIME("联通分量"),
         NONE_STRUCTURE("无结构");
 
         private final String text;
@@ -57,6 +59,8 @@ public class GraphSearch<T> {
             case DJKSTRA:
                 djkstra();
                 break;
+            case PRIME:
+                prime(root);
             case NONE_STRUCTURE:
                 break;
         }
@@ -115,9 +119,33 @@ public class GraphSearch<T> {
         }
     }
 
-    public void djkstra() {
+    private void djkstra() {
 
     }
+
+    private void prime(T root){
+        //int pathCount=0;
+        T[] targets=G.get(root);
+        int outDegree=targets.length;
+        if(outDegree<2) return;
+
+        List<T>record=new ArrayList<>();
+        record.add(root);
+        for (T target : targets) {
+            //either every single node has unless 1 path to its previous node or it cannot add to path set
+            record.add(target);
+            this.theTarget = root;
+            this.dfs(target);
+            int step=this.getAllPaths().size();
+            if(step<2)continue;
+            T temp = target;
+            minConnection.add(new Edge<>(root, temp));
+            if(record.contains(target))continue;
+            prime(temp);
+        }
+
+    }
+
 
     public boolean hasPathTo(T target) {
         if (G.isNodeIn(target)) return false;
@@ -169,27 +197,33 @@ public class GraphSearch<T> {
         return allPaths;
     }
 
+    public List<Edge<T>> getMinConnection() {
+        return minConnection;
+    }
+
     public static void main(String[] args) {
         Long[] nodes = {0L, 1L, 2L, 0L, 3L, 4L, 5L};
-        Long[] nodes0 = {1L, 2L, 3L, 4L};
-        Long[] nodes1 = {0L, 2L, 3L};
-        Long[] nodes2 = {0L,1L};
-        Long[] nodes3 = {0L, 1L};
-        Long[] node4 = {0L, 5L};
-        Long[] node5 = {4L};
+        Long[] nodes0 = {1L};
+        Long[] nodes1 = {0L, 2L, 5L};
+        Long[] nodes2 = {1L,3L};
+        Long[] nodes3 = {2L, 4L};
+        Long[] node4 = {3L, 5L};
+        Long[] node5 = {1L,4L};
         GraphStructure<Long> graphStructure = new GraphStructure<>(nodes);
         int a = graphStructure.getIndexOfObject(0L);
-        System.out.println(a);
+        //System.out.println(a);
         graphStructure.make(0L, nodes0);
         graphStructure.make(1L, nodes1);
         graphStructure.make(2L, nodes2);
         graphStructure.make(3L, nodes3);
         graphStructure.make(4L, node4);
         graphStructure.make(5L, node5);
-        GraphSearch<Long> dfs = new GraphSearch<>(graphStructure, 0L, GraphSearch.Manipulate.DEPTH_FIRST, null, 4L, 10,null);
-        /*GraphSearch<Long> bfs=new GraphSearch<>(graphStructure,2L,GraphSearch.Manipulate.BREADTH_FIRST,null,null,0);
+        GraphSearch<Long> dfs = new GraphSearch<>(graphStructure, 1L, Manipulate.PRIME, null, 5L, 10,null);
+        //System.out.println(dfs.getAllPaths().size());
+        System.out.println(dfs.getMinConnection());
+        /*        *//*GraphSearch<Long> bfs=new GraphSearch<>(graphStructure,2L,GraphSearch.Manipulate.BREADTH_FIRST,null,null,0);
         List<Long> path = bfs.pathTo(3L);
-        System.out.println(path);*/
+        System.out.println(path);*//*
         List<Edge<Long>> eb = graphStructure.getEdges();
         System.out.println(eb);
         System.out.println(dfs.getAllPaths());
@@ -207,7 +241,7 @@ public class GraphSearch<T> {
         //lst.add(l2);
         lst.add(l3);
         System.out.println("---------------------------------------------------");
-        System.out.println(lst);
+        System.out.println(lst);*/
 
     }
 

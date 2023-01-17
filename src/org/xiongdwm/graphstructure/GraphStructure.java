@@ -10,8 +10,9 @@ import java.util.stream.Collectors;
 
 /**
  * @author xiong
- * @version 1.04
- * put the data into a graph structure
+ * @version 1.06 01/06/2023
+ * @overall-description put the data into a graph structure 图结构
+ * @ver-description store weight 保存边权值
  */
 public class GraphStructure<T> {
     private final int nodesNum;
@@ -40,7 +41,7 @@ public class GraphStructure<T> {
         this.nodes = nodes;
     }
 
-    //如果是对象则需要重写实体类的equals方法
+    //if T is not basic data type, need to rewrite methods 'equal'&'hashCode' 如果是对象则需要重写实体类的equals方法
     public boolean isNodeIn(T obj){
         return !Arrays.asList(this.nodes).contains(obj);
     }
@@ -65,6 +66,17 @@ public class GraphStructure<T> {
         for (T o : context) {
             edges.add(new Edge<>(node, o));
         }
+    }
+    @SuppressWarnings("unchecked")
+    public void makeWithOutEdge(T node,T[] context){
+        List<T>list=new ArrayList<>();
+        for(T o:context){
+            if(!isNodeIn(o)) list.add(o);
+        }
+        T[] e=(T[])Array.newInstance(clazz,0);
+        Array.set(matrix,getIndexOfObject(node), list.toArray(e));
+        list.clear();
+        e=null;
     }
 
     public int getIndexOfObject(T obj){

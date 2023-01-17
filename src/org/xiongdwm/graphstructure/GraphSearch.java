@@ -1,6 +1,8 @@
 package org.xiongdwm.graphstructure;
 
 
+import org.xiongdwm.graphstructure.exception.WrongMemberException;
+
 import java.lang.reflect.Array;
 import java.util.*;
 

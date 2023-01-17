@@ -1,4 +1,5 @@
-package org.xiongdwm.graphstructure;
+package org.xiongdwm.graphstructure.connectGraph;
+
 
 
 import org.xiongdwm.graphstructure.exception.WrongMemberException;
@@ -14,7 +15,7 @@ public class GraphSearch<T> {
     private final LinkedList<List<T>> allPaths = new LinkedList<>(); // collection of all recorded paths 所有路径集合
     private final Stack<T> path = new Stack<>(); //a single path 一条路径
     private int maximumOutDegree; // to limit the path length, 规定路径出度，也就时最多跳数
-    private final T dominator; // dominator 必经节点
+    private T dominator; // dominator 必经节点
     private final List<Edge<T>>minConnection= new ArrayList<>();
 
     public enum Manipulate {
@@ -66,6 +67,34 @@ public class GraphSearch<T> {
             case NONE_STRUCTURE:
                 break;
         }
+    }
+
+    @SuppressWarnings("unchecked")
+    public GraphSearch(GraphStructure<T> G, T root, GraphSearch.Manipulate manipulate) {
+        Class<?> clazz = root.getClass();
+        this.wasVisited = new boolean[G.getNodesNum()];
+        this.edgeTo = (T[]) Array.newInstance(clazz, G.getNodesNum());
+        this.G = G;
+
+        for(int i = 0; i < G.getNodesNum(); ++i) {
+            this.wasVisited[i] = false;
+            this.edgeTo[i] = null;
+        }
+
+        switch(manipulate) {
+            case BREADTH_FIRST:
+                this.bfs(root);
+                break;
+            case DEPTH_FIRST:
+                throw new WrongMemberException("misusing constructor,need param `target`");
+            case DJKSTRA:
+                this.djkstra();
+                break;
+            case PRIME:
+                this.prime(root);
+            case NONE_STRUCTURE:
+        }
+
     }
 
     private void dfs(T root) {
@@ -140,10 +169,9 @@ public class GraphSearch<T> {
             this.dfs(target);
             int step=this.getAllPaths().size();
             if(step<2)continue;
-            T temp = target;
-            minConnection.add(new Edge<>(root, temp));
+            minConnection.add(new Edge<>(root, target));
             if(record.contains(target))continue;
-            prime(temp);
+            prime(target);
         }
 
     }
@@ -202,49 +230,4 @@ public class GraphSearch<T> {
     public List<Edge<T>> getMinConnection() {
         return minConnection;
     }
-
-    public static void main(String[] args) {
-        Long[] nodes = {0L, 1L, 2L, 0L, 3L, 4L, 5L};
-        Long[] nodes0 = {1L};
-        Long[] nodes1 = {0L, 2L, 5L};
-        Long[] nodes2 = {1L,3L};
-        Long[] nodes3 = {2L, 4L};
-        Long[] node4 = {3L, 5L};
-        Long[] node5 = {1L,4L};
-        GraphStructure<Long> graphStructure = new GraphStructure<>(nodes);
-        int a = graphStructure.getIndexOfObject(0L);
-        //System.out.println(a);
-        graphStructure.make(0L, nodes0);
-        graphStructure.make(1L, nodes1);
-        graphStructure.make(2L, nodes2);
-        graphStructure.make(3L, nodes3);
-        graphStructure.make(4L, node4);
-        graphStructure.make(5L, node5);
-        GraphSearch<Long> dfs = new GraphSearch<>(graphStructure, 1L, Manipulate.PRIME, null, 5L, 10,null);
-        //System.out.println(dfs.getAllPaths().size());
-        System.out.println(dfs.getMinConnection());
-        /*        *//*GraphSearch<Long> bfs=new GraphSearch<>(graphStructure,2L,GraphSearch.Manipulate.BREADTH_FIRST,null,null,0);
-        List<Long> path = bfs.pathTo(3L);
-        System.out.println(path);*//*
-        List<Edge<Long>> eb = graphStructure.getEdges();
-        System.out.println(eb);
-        System.out.println(dfs.getAllPaths());
-        List<Edge<Long>> edges = graphStructure.tailed();
-        System.out.println(edges);
-        System.out.println("--!!!!!!!-------------------------------------------------");
-        System.out.println(dfs.getAllPaths());
-        LinkedList<Object> lst = new LinkedList<>();
-        List<Object> l0 = new ArrayList<>(Arrays.asList(nodes0));
-        List<Object> l1 = new ArrayList<>(Arrays.asList(nodes1));
-        //List<Object> l2=new ArrayList<>(Arrays.asList(nodes2));
-        List<Object> l3 = new ArrayList<>(Arrays.asList(nodes3));
-        lst.add(l0);
-        lst.add(l1);
-        //lst.add(l2);
-        lst.add(l3);
-        System.out.println("---------------------------------------------------");
-        System.out.println(lst);*/
-
-    }
-
 }

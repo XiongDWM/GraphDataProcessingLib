@@ -1,8 +1,10 @@
-package org.xiongdwm.graphstructure;
+package org.xiongdwm.graphstructure.connectGraph;
 /*
  * @description first time offer some api to the community even it seems not very useful lol
  *
  */
+
+import org.xiongdwm.graphstructure.connectGraph.Edge;
 
 import java.lang.reflect.Array;
 import java.util.*;

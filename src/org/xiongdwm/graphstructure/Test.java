@@ -2,6 +2,10 @@ package org.xiongdwm.graphstructure;
 
 import org.xiongdwm.graphstructure.connectGraph.GraphSearch;
 import org.xiongdwm.graphstructure.connectGraph.GraphStructure;
+import org.xiongdwm.graphstructure.discrete.Pan;
+import org.xiongdwm.graphstructure.utils.geometry.GeoAbstract;
+
+import java.util.ArrayList;
 
 public class Test {
     public static void main(String[] args) {
@@ -45,6 +49,8 @@ public class Test {
         lst.add(l3);
         System.out.println("---------------------------------------------------");
         System.out.println(lst);*/
+        GeoAbstract eg=new TestGeoAbstract();
+        Pan pan=new Pan(eg,new ArrayList<>());
 
     }
 }

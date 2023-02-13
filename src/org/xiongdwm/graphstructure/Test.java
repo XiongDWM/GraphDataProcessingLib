@@ -2,7 +2,7 @@ package org.xiongdwm.graphstructure;
 
 import org.xiongdwm.graphstructure.connectGraph.GraphSearch;
 import org.xiongdwm.graphstructure.connectGraph.GraphStructure;
-import org.xiongdwm.graphstructure.discrete.Pan;
+import org.xiongdwm.graphstructure.discrete.Cluster;
 import org.xiongdwm.graphstructure.utils.geometry.GeoAbstract;
 
 import java.util.ArrayList;
@@ -50,7 +50,7 @@ public class Test {
         System.out.println("---------------------------------------------------");
         System.out.println(lst);*/
         GeoAbstract eg=new TestGeoAbstract();
-        Pan pan=new Pan(eg,new ArrayList<>());
+        Cluster cluster =new Cluster(eg,new ArrayList<>());
 
     }
 }

@@ -14,4 +14,9 @@ public class TestGeoAbstract extends GeoAbstract {
     public Node<?, Number> getCoordinate(Number x, Number y, Double dis) {
         return null;
     }
+
+    @Override
+    public double calDis(Number x1, Number y1, Number x2, Number y2) {
+        return 0;
+    }
 }

@@ -6,6 +6,10 @@ public class Node<T,Number>{
     private Number y;
     private Integer weight;
 
+    public Node(){
+
+    }
+
     public Node(T uniqueTag, Number x, Number y, Integer weight) {
         this.uniqueTag = uniqueTag;
         this.x = x;

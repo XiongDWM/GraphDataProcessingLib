@@ -3,6 +3,7 @@ package org.xiongdwm.graphstructure;
 import org.xiongdwm.graphstructure.discrete.Node;
 import org.xiongdwm.graphstructure.utils.geometry.GeoAbstract;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 public class TestGeoAbstract extends GeoAbstract {
@@ -22,7 +23,11 @@ public class TestGeoAbstract extends GeoAbstract {
             sumy+=n.getY().doubleValue();
         }
         int count=nodes.size();
-        return new Node<>(sumx/count,sumy/count);
+        BigDecimal bigDecimal=new BigDecimal(sumx/count);
+        double x=bigDecimal.setScale(3,BigDecimal.ROUND_HALF_UP).doubleValue();
+        bigDecimal=new BigDecimal(sumy/count);
+        double y=bigDecimal.setScale(3,BigDecimal.ROUND_HALF_UP).doubleValue();
+        return new Node<>(x,y);
     }
 
     @Override

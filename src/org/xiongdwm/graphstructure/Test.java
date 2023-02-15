@@ -33,7 +33,7 @@ public class Test {
         graphStructure.make(5L, node5);
         GraphSearch<Long> dfs = new GraphSearch<>(graphStructure, 1L, GraphSearch.Manipulate.PRIME, null, 5L, 10,null);
         //System.out.println(dfs.getAllPaths().size());
-        System.out.println(dfs.getMinConnection());
+        //System.out.println(dfs.getMinConnection());
         /*        *//*GraphSearch<Long> bfs=new GraphSearch<>(graphStructure,2L,GraphSearch.Manipulate.BREADTH_FIRST,null,null,0);
         List<Long> path = bfs.pathTo(3L);
         System.out.println(path);*//*
@@ -62,7 +62,7 @@ public class Test {
         Cluster cluster =new Cluster(eg,list);
         cluster.t();
         Hashtable<Node<?>,List<Node<?>>>table= cluster.clustering();
-        //System.out.println(table.toString());
+        System.out.println(table.toString());
 
 
 /*        int[] ar={1,2,3,4,5,6,7,13,15,613,312,321,21};

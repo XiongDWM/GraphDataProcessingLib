@@ -3,9 +3,15 @@ package org.xiongdwm.graphstructure;
 import org.xiongdwm.graphstructure.connectGraph.GraphSearch;
 import org.xiongdwm.graphstructure.connectGraph.GraphStructure;
 import org.xiongdwm.graphstructure.discrete.Cluster;
+import org.xiongdwm.graphstructure.discrete.Node;
 import org.xiongdwm.graphstructure.utils.geometry.GeoAbstract;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Hashtable;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class Test {
     public static void main(String[] args) {
@@ -50,7 +56,37 @@ public class Test {
         System.out.println("---------------------------------------------------");
         System.out.println(lst);*/
         GeoAbstract eg=new TestGeoAbstract();
-        Cluster cluster =new Cluster(eg,new ArrayList<>());
+        List<Node<?>> list=Stream
+                .of(new Node<>(1d,2d),new Node<>(2d,5d),new Node<>(2d,10d),new Node<>(4d,9d),new Node<>(5d,8d),new Node<>(4d,3d),new Node<>(6d,4d),new Node<>(7d,5d),new Node<>(8d,4d))
+                .collect(Collectors.toList());
+        Cluster cluster =new Cluster(eg,list);
+        cluster.t();
+        Hashtable<Node<?>,List<Node<?>>>table= cluster.clustering();
+        //System.out.println(table.toString());
 
+
+/*        int[] ar={1,2,3,4,5,6,7,13,15,613,312,321,21};
+        int[] b=new int[ar.length];
+        //System.arraycopy(a,0,b,0,a.length);
+        //System.out.println(a==b);
+        int c=2;
+        boolean flag;
+        do{
+            flag=false;
+            System.out.println(flag);
+            System.arraycopy(ar,0,b,0,ar.length);
+            for(int i=0;i<ar.length;i++){
+                if(ar[i]%2==0){
+                    ar[i]=-1;
+                    flag=true;
+                }
+            }
+            System.out.println(Arrays.toString(ar));
+            System.out.println(Arrays.toString(b));
+            //System.out.println("+1");
+            System.out.println(flag);
+            c--;
+        }while (flag);
+        System.out.println(ar==b);*/
     }
 }

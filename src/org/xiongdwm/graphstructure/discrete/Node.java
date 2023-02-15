@@ -1,6 +1,6 @@
 package org.xiongdwm.graphstructure.discrete;
 
-public class Node<T,Number>{
+public class Node<T>{
     private T uniqueTag;
     private Number x;
     private Number y;
@@ -68,5 +68,15 @@ public class Node<T,Number>{
     @Override
     public boolean equals(Object obj) {
         return super.equals(obj);
+    }
+
+    @Override
+    public String toString() {
+        return "Node{" +
+                "uniqueTag=" + uniqueTag +
+                ", x=" + x +
+                ", y=" + y +
+                ", weight=" + weight +
+                '}';
     }
 }

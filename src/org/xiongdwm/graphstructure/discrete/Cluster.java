@@ -68,13 +68,12 @@ public class Cluster {
     @SuppressWarnings("unchecked")
     public Hashtable<Node<?>,List<Node<?>>> clustering(){
         Node<?>[] k = randomPoints(k_num); //numbers of cluster
-        boolean flag; //
+        boolean flag; //感知器
         List<Node<?>>[] rc;
+        List<Node<?>>lst;
         do {
             rc=(List<Node<?>>[]) Array.newInstance(List.class,k_num);
             flag=false;
-            //Hashtable<Node<?>,Integer>hashtable = new Hashtable<>();
-            List<Node<?>>lst;
             for (Node<?> numberNode : nodeArray) {
                 Number x1 = numberNode.getX();
                 Number y1 = numberNode.getY();
@@ -85,16 +84,12 @@ public class Cluster {
                     double dis = geoMethods.calDis(x1, y1, x2, y2);
                     array[j] = dis;
                 }
-                int located = minValue(array);//locate in position of k
+                int located = minValue(array); //locate in position of k
                 lst=rc[located];
                 if(null==lst)lst=new ArrayList<>();
                 lst.add(numberNode);
-                //lst=new ArrayList<>(lst);
                 rc[located]=lst;
-                //hashtable.put(numberNode, located);
             }
-            //System.out.println(Arrays.toString(rc));
-            //re-cal clusters' centers n fill 'k'
             for(int i=0;i<k_num;i++){
                 Node<?>center=geoMethods.getEquilibriumPoint(rc[i]);
                 if(!Objects.equals(k[i].getX().doubleValue(), center.getX().doubleValue())
@@ -107,31 +102,8 @@ public class Cluster {
                 }
             }
             System.out.println(Arrays.toString(k));
-            System.out.println("=========================================================");
+            System.out.println("=============================================================");
             //put each point in a exists cluster
-/*            List<Node<?>>nodes=new ArrayList<>();
-            Enumeration<Node<?>> es=hashtable.keys();
-            Node<?> newCenter;
-
-            for(int i=0; i<k.length;i++){
-                newCenter=new Node<>();
-                System.out.println(i);
-                nodes.clear();
-                int w=0;
-                while(es.hasMoreElements()){
-                    Node<?>n=es.nextElement();
-                    if(hashtable.get(n) ==w) nodes.add(n);
-                    w++;
-                }
-                newCenter=geoMethods.getEquilibriumPoint(nodes);
-                if(!Objects.equals(k[i].getX().doubleValue(), newCenter.getX().doubleValue())
-                        || !Objects.equals(k[i].getY().doubleValue(), newCenter.getY().doubleValue())){
-                    k[i]=newCenter;
-                    flag=true;
-                    continue;
-                }
-                cluster.put(k[i], nodes);
-            }*/
         }while (flag);
 
         Hashtable<Node<?>,List<Node<?>>> cluster=new Hashtable<>(); //result

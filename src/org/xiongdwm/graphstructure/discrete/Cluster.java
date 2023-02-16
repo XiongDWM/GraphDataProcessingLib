@@ -64,8 +64,9 @@ public class Cluster {
         boolean flag; //感知器
         List<Node<?>>[] rc;
         List<Node<?>>lst;
+        int c=1;
         do {
-            System.out.println(1);
+            System.out.println(c++);
             rc=(List<Node<?>>[]) Array.newInstance(List.class,k_num);
             flag=false;
             for (int i=0; i<nodesCount;i++) {
@@ -83,8 +84,9 @@ public class Cluster {
                 if(null==lst)lst=new ArrayList<>();
                 lst.add(nodeArray[i]);
                 rc[located]=lst;
+                //lst.clear();
             }
-            //System.out.println(Arrays.toString(rc));
+            System.out.println(Arrays.toString(rc));
             //re-cal clusters' centers n fill 'k'
             for(int i=0;i<k_num;i++){
                 if(rc[i].isEmpty()||rc[i]==null){
@@ -98,8 +100,8 @@ public class Cluster {
                     flag=true;
                 }
             }
-            System.out.println(Arrays.toString(k));
-            System.out.println("=========================================================");
+//            System.out.println(Arrays.toString(k));
+//            System.out.println("=========================================================");
             //put each point in a exists cluster
         }while (flag);
 

@@ -56,9 +56,9 @@ public class Test {
         System.out.println("---------------------------------------------------");
         System.out.println(lst);*/
         GeoAbstract eg=new TestGeoAbstract();
-        List<Node<?>> list=Stream
+        Node<?>[] list= Stream
                 .of(new Node<>(1d,2d),new Node<>(2d,5d),new Node<>(2d,10d),new Node<>(4d,9d),new Node<>(5d,8d),new Node<>(4d,3d),new Node<>(6d,4d),new Node<>(7d,5d),new Node<>(8d,4d))
-                .collect(Collectors.toList());
+                .toArray(Node<?>[]::new);
         Cluster cluster =new Cluster(eg,list);
         cluster.t();
         Hashtable<Node<?>,List<Node<?>>>table= cluster.clustering();

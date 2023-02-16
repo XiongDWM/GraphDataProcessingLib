@@ -63,12 +63,14 @@ public class Cluster {
         Node<?>[] k = randomPoints(k_num); //numbers of cluster
         boolean flag; //感知器
         List<Node<?>>[] rc;
-        List<Node<?>>lst;
-        int c=1;
+        List<Node<?>>lst=new ArrayList<>();
+        //int c=1;
+        Node<?>center;
         do {
-            System.out.println(c++);
+            //System.out.println(c++);
             rc=(List<Node<?>>[]) Array.newInstance(List.class,k_num);
             flag=false;
+            int located;
             for (int i=0; i<nodesCount;i++) {
                 Number x1 = nodeArray[i].getX();
                 Number y1 = nodeArray[i].getY();
@@ -79,27 +81,32 @@ public class Cluster {
                     double dis = geoMethods.calDis(x1, y1, x2, y2);
                     array[j] = dis;
                 }
-                int located = minValue(array); //locate in position of k
+                located = minValue(array); //locate in position of k
                 lst=rc[located];
                 if(null==lst)lst=new ArrayList<>();
+                if(nodeArray[i]==null){
+                    System.out.println(i);
+                    System.out.println(Arrays.toString(k));
+                    System.out.println("shang");
+                    continue;
+                }
                 lst.add(nodeArray[i]);
                 rc[located]=lst;
                 //lst.clear();
             }
-            System.out.println(Arrays.toString(rc));
+            //System.out.println(Arrays.toString(rc));
             //re-cal clusters' centers n fill 'k'
+            List<Node<?>>[] copy= (List<Node<?>>[]) Array.newInstance(List.class,k_num);
+            System.arraycopy(rc,0,copy,0,k_num);
             for(int i=0;i<k_num;i++){
-                if(rc[i].isEmpty()||rc[i]==null){
-                    System.out.println(k[i].toString());
-                    continue;
-                }
-                Node<?>center=geoMethods.getEquilibriumPoint(rc[i]);
+                center=geoMethods.getEquilibriumPoint(copy[i]);
                 if(!Objects.equals(k[i].getX().doubleValue(), center.getX().doubleValue())
                         || !Objects.equals(k[i].getY().doubleValue(), center.getY().doubleValue())){
                     k[i]=center;
                     flag=true;
                 }
             }
+
 //            System.out.println(Arrays.toString(k));
 //            System.out.println("=========================================================");
             //put each point in a exists cluster

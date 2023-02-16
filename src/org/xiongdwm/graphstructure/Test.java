@@ -6,10 +6,8 @@ import org.xiongdwm.graphstructure.discrete.Cluster;
 import org.xiongdwm.graphstructure.discrete.Node;
 import org.xiongdwm.graphstructure.utils.geometry.GeoAbstract;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Hashtable;
-import java.util.List;
+import java.math.BigDecimal;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -56,14 +54,26 @@ public class Test {
         System.out.println("---------------------------------------------------");
         System.out.println(lst);*/
         GeoAbstract eg=new TestGeoAbstract();
+        List<Node<?>>listse=new ArrayList<>();
+        Random random=new Random();
+        BigDecimal bigDecimal;
+        Node<?>nss;
+        for(int i=0;i<3000;i++){
+            bigDecimal= BigDecimal.valueOf(random.nextInt(1000) / 13.3);
+            double x=bigDecimal.setScale(3,BigDecimal.ROUND_HALF_UP).doubleValue();
+            bigDecimal= BigDecimal.valueOf(random.nextInt(1000) / 13.3);
+            double y=bigDecimal.setScale(3,BigDecimal.ROUND_HALF_UP).doubleValue();
+            nss=new Node<>(x,y);
+            listse.add(nss);
+        }
         Node<?>[] list= Stream
                 .of(new Node<>(1d,2d),new Node<>(2d,5d),new Node<>(2d,10d),new Node<>(4d,9d),new Node<>(5d,8d),new Node<>(4d,3d),new Node<>(6d,4d),new Node<>(7d,5d),new Node<>(8d,4d))
                 .toArray(Node<?>[]::new);
-        Cluster cluster =new Cluster(eg,list);
+        Node<?>[] hs= listse.toArray(new Node<?>[0]);
+        Cluster cluster =new Cluster(eg,hs);
         cluster.t();
         Hashtable<Node<?>,List<Node<?>>>table= cluster.clustering();
         System.out.println(table.toString());
-
 
 /*        int[] ar={1,2,3,4,5,6,7,13,15,613,312,321,21};
         int[] b=new int[ar.length];

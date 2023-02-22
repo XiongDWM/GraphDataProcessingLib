@@ -98,6 +98,7 @@ public class Cluster {
                     flag = true;
                 }
             }
+            if(flag)i=nodesCount;
         }
         //re-cal clusters' centers n fill 'k'
 

@@ -58,7 +58,7 @@ public class Test {
         Random random=new Random();
         BigDecimal bigDecimal;
         Node<?>nss;
-        for(int i=0;i<3000;i++){
+        for(int i=0;i<10000;i++){
             bigDecimal= BigDecimal.valueOf(random.nextInt(1000) / 13.3);
             double x=bigDecimal.setScale(3,BigDecimal.ROUND_HALF_UP).doubleValue();
             bigDecimal= BigDecimal.valueOf(random.nextInt(1000) / 13.3);

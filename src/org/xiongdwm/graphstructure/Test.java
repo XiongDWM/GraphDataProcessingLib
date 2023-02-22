@@ -7,6 +7,7 @@ import org.xiongdwm.graphstructure.discrete.Node;
 import org.xiongdwm.graphstructure.utils.geometry.GeoAbstract;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -57,13 +58,16 @@ public class Test {
         List<Node<?>>listse=new ArrayList<>();
         Random random=new Random();
         BigDecimal bigDecimal;
-        Node<?>nss;
+        Node<Integer>nss;
         for(int i=0;i<10000;i++){
             bigDecimal= BigDecimal.valueOf(random.nextInt(1000) / 13.3);
-            double x=bigDecimal.setScale(3,BigDecimal.ROUND_HALF_UP).doubleValue();
+            double x=bigDecimal.setScale(3, RoundingMode.HALF_UP).doubleValue();
             bigDecimal= BigDecimal.valueOf(random.nextInt(1000) / 13.3);
-            double y=bigDecimal.setScale(3,BigDecimal.ROUND_HALF_UP).doubleValue();
+            double y=bigDecimal.setScale(3, RoundingMode.HALF_UP).doubleValue();
             nss=new Node<>(x,y);
+            Integer id=i;
+            nss.setUniqueTag(id);
+            nss.setWeight(0);
             listse.add(nss);
         }
         Node<?>[] list= Stream
@@ -71,7 +75,7 @@ public class Test {
                 .toArray(Node<?>[]::new);
         Node<?>[] hs= listse.toArray(new Node<?>[0]);
         Cluster cluster =new Cluster(eg,hs);
-        cluster.t();
+        //cluster.t();
         Hashtable<Node<?>,List<Node<?>>>table= cluster.clustering();
         System.out.println(table.toString());
 

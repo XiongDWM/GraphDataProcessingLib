@@ -1,6 +1,5 @@
 package org.xiongdwm.graphstructure.discrete;
 
-import jdk.nashorn.internal.ir.annotations.Ignore;
 import org.xiongdwm.graphstructure.exception.WrongMemberException;
 import org.xiongdwm.graphstructure.utils.geometry.GeoAbstract;
 
@@ -46,31 +45,15 @@ public class Cluster {
         return result;
     }
 
-    @Ignore
-    public void t() {
-        Node<?> o = geoMethods.getEquilibriumPoint(1, 1, 3, 4);
-        System.out.println(o);
-    }
-
-    public Object runClustering() {
-        Node<?>[] k = randomPoints(k_num);
-        Node<?>[] bk = (Node<?>[]) Array.newInstance(clazz, k_num);
-        System.arraycopy(k, 0, bk, 0, k_num);
-        Hashtable<Integer, List<Node<?>>> c = new Hashtable<>();
-        return null;
-    }
-
     @SuppressWarnings("unchecked")
     public Hashtable<Node<?>, List<Node<?>>> clustering() {
         Node<?>[] k = randomPoints(k_num); //numbers of cluster
         boolean flag; //感知器
         List<Node<?>>[] rc=(List<Node<?>>[]) Array.newInstance(List.class, k_num);
-        List<Node<?>> lst;
         Node<?> center;
         do {
             flag= false;
             List<Node<?>>[] temprc = (List<Node<?>>[]) Array.newInstance(List.class, k_num);
-            int located;
             for (int i = 0; i < nodesCount; i++) {
                 Number x1 = nodeArray[i].getX();
                 Number y1 = nodeArray[i].getY();
@@ -81,19 +64,21 @@ public class Cluster {
                     double dis = geoMethods.calDis(x1, y1, x2, y2);
                     array[j] = dis;
                 }
-                located = minValue(array); //locate in position of k
-                lst = temprc[located];
-                if (null == lst) lst = new ArrayList<>();
-                if (nodeArray[i] == null) {
-                    continue;
-                }
-                lst.add(nodeArray[i]);
-                temprc[located] = lst;
+                int located = minValue(array); //locate in position of k
+                Node<?>t=nodeArray[i];
+                if(t==null)System.out.println("对像null"+i);
+                if(null==temprc[located])temprc[located]=new ArrayList<>();
+                temprc[located].add(t);
+                if(null==temprc[located]) System.out.println("null"+located);
             }
+            List<Node<?>>[] copy = (List<Node<?>>[]) Array.newInstance(List.class, k_num);
+            System.arraycopy(temprc,0,copy,0,k_num);
+            //System.out.println(Arrays.toString(temprc));
             //re-cal clusters' centers n fill 'k'
             Node<?>[] kcopy= (Node<?>[]) Array.newInstance(Node.class,k_num);
-            //System.arraycopy(k,0,kcopy,0,k_num);
+            System.arraycopy(k,0,kcopy,0,k_num);
             for (int i = 0; i < k_num; i++) {
+                if(temprc[i]==null)continue;
                 center = geoMethods.getEquilibriumPoint(temprc[i]);
                 if (!Objects.equals(k[i].getX().doubleValue(), center.getX().doubleValue())
                         || !Objects.equals(k[i].getY().doubleValue(), center.getY().doubleValue())) {
@@ -105,9 +90,9 @@ public class Cluster {
             if(!flag)System.arraycopy(temprc,0,rc,0,k_num);
         } while (flag);
 
-
         Hashtable<Node<?>, List<Node<?>>> cluster = new Hashtable<>(); //result
         for (int i = 0; i < k_num; i++) {
+            if(null==rc[i])continue;
             cluster.put(k[i], rc[i]);
         }
         return cluster;

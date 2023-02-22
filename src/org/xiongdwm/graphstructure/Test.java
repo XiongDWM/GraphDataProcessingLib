@@ -59,7 +59,7 @@ public class Test {
         Random random=new Random();
         BigDecimal bigDecimal;
         Node<Integer>nss;
-        for(int i=0;i<10000;i++){
+        for(int i=0;i<15000;i++){
             bigDecimal= BigDecimal.valueOf(random.nextInt(1000) / 13.3);
             double x=bigDecimal.setScale(3, RoundingMode.HALF_UP).doubleValue();
             bigDecimal= BigDecimal.valueOf(random.nextInt(1000) / 13.3);
@@ -78,6 +78,7 @@ public class Test {
         //cluster.t();
         Hashtable<Node<?>,List<Node<?>>>table= cluster.clustering();
         System.out.println(table.toString());
+        System.out.println(table.size());
 
 /*        int[] ar={1,2,3,4,5,6,7,13,15,613,312,321,21};
         int[] b=new int[ar.length];

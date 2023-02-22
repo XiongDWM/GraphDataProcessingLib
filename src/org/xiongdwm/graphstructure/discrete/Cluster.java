@@ -63,44 +63,48 @@ public class Cluster {
     @SuppressWarnings("unchecked")
     public Hashtable<Node<?>, List<Node<?>>> clustering() {
         Node<?>[] k = randomPoints(k_num); //numbers of cluster
-        boolean flag= false; //感知器
-        List<Node<?>>[] rc;
-        List<Node<?>> lst = new ArrayList<>();
+        boolean flag; //感知器
+        List<Node<?>>[] rc=(List<Node<?>>[]) Array.newInstance(List.class, k_num);
+        List<Node<?>> lst;
         Node<?> center;
-
-        rc = (List<Node<?>>[]) Array.newInstance(List.class, k_num);
-        int located;
-        for (int i = 0; i < nodesCount; i++) {
-            Number x1 = nodeArray[i].getX();
-            Number y1 = nodeArray[i].getY();
-            double[] array = new double[k_num];
-            for (int j = 0; j < k_num; j++) {
-                Number x2 = k[j].getX();
-                Number y2 = k[j].getY();
-                double dis = geoMethods.calDis(x1, y1, x2, y2);
-                array[j] = dis;
+        do {
+            flag= false;
+            List<Node<?>>[] temprc = (List<Node<?>>[]) Array.newInstance(List.class, k_num);
+            int located;
+            for (int i = 0; i < nodesCount; i++) {
+                Number x1 = nodeArray[i].getX();
+                Number y1 = nodeArray[i].getY();
+                double[] array = new double[k_num];
+                for (int j = 0; j < k_num; j++) {
+                    Number x2 = k[j].getX();
+                    Number y2 = k[j].getY();
+                    double dis = geoMethods.calDis(x1, y1, x2, y2);
+                    array[j] = dis;
+                }
+                located = minValue(array); //locate in position of k
+                lst = temprc[located];
+                if (null == lst) lst = new ArrayList<>();
+                if (nodeArray[i] == null) {
+                    continue;
+                }
+                lst.add(nodeArray[i]);
+                temprc[located] = lst;
             }
-            located = minValue(array); //locate in position of k
-            lst = rc[located];
-            if (null == lst) lst = new ArrayList<>();
-            if (nodeArray[i] == null) {
-                continue;
-            }
-            lst.add(nodeArray[i]);
-            rc[located] = lst;
-            List<Node<?>>[] copy = (List<Node<?>>[]) Array.newInstance(List.class, k_num);
-            System.arraycopy(rc, 0, copy, 0, k_num);
-            for (int ki = 0; ki < k_num; ki++) {
-                center = geoMethods.getEquilibriumPoint(copy[ki]);
-                if (!Objects.equals(k[ki].getX().doubleValue(), center.getX().doubleValue())
-                        || !Objects.equals(k[ki].getY().doubleValue(), center.getY().doubleValue())) {
-                    k[ki] = center;
+            //re-cal clusters' centers n fill 'k'
+            Node<?>[] kcopy= (Node<?>[]) Array.newInstance(Node.class,k_num);
+            //System.arraycopy(k,0,kcopy,0,k_num);
+            for (int i = 0; i < k_num; i++) {
+                center = geoMethods.getEquilibriumPoint(temprc[i]);
+                if (!Objects.equals(k[i].getX().doubleValue(), center.getX().doubleValue())
+                        || !Objects.equals(k[i].getY().doubleValue(), center.getY().doubleValue())) {
+                    kcopy[i] = center;
                     flag = true;
                 }
             }
-            if(flag)i=nodesCount;
-        }
-        //re-cal clusters' centers n fill 'k'
+            System.arraycopy(kcopy,0,k,0,k_num);
+            if(!flag)System.arraycopy(temprc,0,rc,0,k_num);
+        } while (flag);
+
 
         Hashtable<Node<?>, List<Node<?>>> cluster = new Hashtable<>(); //result
         for (int i = 0; i < k_num; i++) {
@@ -126,6 +130,13 @@ public class Cluster {
             }
         }
         return res;
+    }
+
+    public static void main(String[] args) {
+        Integer[] s1={1,2,53,4,5};
+        Integer[] s2={1,2,3,4,5};
+        System.arraycopy(s1,0,s2,0,s2.length);
+        System.out.println(Arrays.toString(s2));
     }
 
 }

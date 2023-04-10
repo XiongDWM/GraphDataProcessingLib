@@ -42,4 +42,27 @@ public class TestGeoAbstract extends GeoAbstract {
         double w=Math.abs(x1.doubleValue()-x2.doubleValue());
         return h+w;
     }
+
+    @Override
+    public double calculateVariance(Node<?>[] points) {
+        double meanX = 0.0;
+        double meanY = 0.0;
+
+        // Calculate means
+        for (Node<?> point : points) {
+            meanX += point.getX().doubleValue();
+            meanY += point.getY().doubleValue();
+        }
+        meanX /= points.length;
+        meanY /= points.length;
+
+        // Calculate variance
+        double variance = 0.0;
+        for (Node<?> point : points) {
+            variance += Math.pow(point.getX().doubleValue() - meanX, 2) + Math.pow(point.getY().doubleValue() - meanY, 2);
+        }
+        variance /= points.length;
+
+        return variance;
+    }
 }

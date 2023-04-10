@@ -29,26 +29,48 @@ public class Cluster {
 
     //random 可能有重复的
     public Node<?>[] randomPoints(int amount) {
-        if (0 >= amount) throw new WrongMemberException("amount is a positive integer");
-        Class<?> clazz = Node.class;
-        Node<?>[] result = (Node<?>[]) Array.newInstance(clazz, amount);
+        if (amount <= 0) {
+            throw new IllegalArgumentException("amount must be a positive integer");
+        }
+        Node<?>[] result = new Node<?>[amount];
+        double maxVariance = 0.0;
+
+        for (int i = 0; i < 10; i++) {
+            Node<?>[] randomPoints = getRandomPoints(amount);
+
+            // Calculate variance
+            double variance = geoMethods.calculateVariance(randomPoints);
+
+            // Store result with largest variance
+            if (variance > maxVariance) {
+                System.arraycopy(randomPoints, 0, result, 0, amount);
+                maxVariance = variance;
+            }
+            System.out.println(maxVariance);
+        }
+
+        return result;
+    }
+    private Node<?>[] getRandomPoints(int amount) {
+        Node<?>[] points = new Node<?>[amount];
         Random random = new Random();
         int p = 0;
         while (amount > 0) {
             int rn = random.nextInt(this.nodesCount); //number in [0,range)
             if (unChange[rn]) continue;
-            result[p] = nodeArray[rn];
+            points[p] = nodeArray[rn];
             unChange[rn] = true;
             amount--;
             p++;
         }
-        return result;
+        Arrays.fill(unChange, false); // Reset unChange array
+        return points;
     }
 
     @SuppressWarnings("unchecked")
     public Hashtable<Node<?>, List<Node<?>>> clustering() {
         Node<?>[] k = randomPoints(k_num); //numbers of cluster
-        boolean flag; //感知器
+        boolean flag; //sensor 感知器
         List<Node<?>>[] rc=(List<Node<?>>[]) Array.newInstance(List.class, k_num);
         Node<?> center;
         do {
@@ -66,10 +88,8 @@ public class Cluster {
                 }
                 int located = minValue(array); //locate in position of k
                 Node<?>t=nodeArray[i];
-                if(t==null)System.out.println("对像null"+i);
                 if(null==temprc[located])temprc[located]=new ArrayList<>();
                 temprc[located].add(t);
-                if(null==temprc[located]) System.out.println("null"+located);
             }
             List<Node<?>>[] copy = (List<Node<?>>[]) Array.newInstance(List.class, k_num);
             System.arraycopy(temprc,0,copy,0,k_num);
@@ -116,6 +136,7 @@ public class Cluster {
         }
         return res;
     }
+
 
     public static void main(String[] args) {
         Integer[] s1={1,2,53,4,5};

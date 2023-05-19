@@ -46,7 +46,7 @@ public class Cluster {
                 System.arraycopy(randomPoints, 0, result, 0, amount);
                 maxVariance = variance;
             }
-            System.out.println(maxVariance);
+            //System.out.println(maxVariance);
         }
 
         return result;
@@ -93,7 +93,6 @@ public class Cluster {
             }
             List<Node<?>>[] copy = (List<Node<?>>[]) Array.newInstance(List.class, k_num);
             System.arraycopy(temprc,0,copy,0,k_num);
-            //System.out.println(Arrays.toString(temprc));
             //re-cal clusters' centers n fill 'k'
             Node<?>[] kcopy= (Node<?>[]) Array.newInstance(Node.class,k_num);
             System.arraycopy(k,0,kcopy,0,k_num);

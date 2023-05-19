@@ -151,7 +151,32 @@ public class GraphSearch<T> {
     }
 
     private void djkstra() {
-
+        PriorityQueue<Edge<T>> pq = new PriorityQueue<>(Comparator.comparingDouble(Edge::getWeight));
+        for (Edge<T> edge : G.getEdges()) {
+            if (edge.getVertex1().equals(G.getNodes()[0])) {
+                pq.add(edge);
+            }
+        }
+        Set<T> visited = new HashSet<>();
+        while (!pq.isEmpty()) {
+            Edge<T> edge = pq.poll();
+            if (visited.contains(edge.getVertex2())) {
+                continue;
+            }
+            visited.add(edge.getVertex2());
+            int index = G.getIndexOfObject(edge.getVertex2());
+            edgeTo[index] = edge.getVertex1();
+            if (edge.getVertex2().equals(theTarget)) {
+                break;
+            }
+            for (T neighbor : G.get(edge.getVertex2())) {
+                if (neighbor == null) {
+                    continue;
+                }
+                int neighborIndex = G.getIndexOfObject(neighbor);
+                pq.add(new Edge<>(edge.getVertex2(), neighbor, getEdgeWeight(edge.getVertex2(), neighbor)));
+            }
+        }
     }
 
     private void prime(T root){

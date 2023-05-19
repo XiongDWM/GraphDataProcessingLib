@@ -71,7 +71,7 @@ public class Test {
             listse.add(nss);
         }
         Node<?>[] list= Stream
-                .of(new Node<>(1d,2d),new Node<>(2d,5d),new Node<>(2d,10d),new Node<>(4d,9d),new Node<>(5d,8d),new Node<>(4d,3d),new Node<>(6d,4d),new Node<>(7d,5d),new Node<>(8d,4d))
+                .of(new Node<>(15d,8d),new Node<>(15d,10d),new Node<>(4d,7d),new Node<>(8d,8d),new Node<>(8d,13d),new Node<>(13d,5d),new Node<>(13d,13d))
                 .toArray(Node<?>[]::new);
         Node<?>[] hs= listse.toArray(new Node<?>[0]);
         Cluster cluster =new Cluster(eg,list);

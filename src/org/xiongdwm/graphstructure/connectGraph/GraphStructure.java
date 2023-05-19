@@ -69,6 +69,19 @@ public class GraphStructure<T> {
             edges.add(new Edge<>(node, o));
         }
     }
+
+    @SuppressWarnings("unchecked")
+    public void make(T node, T[] context, int[] weights) { //添加边权参数weights
+        List<T> list = new ArrayList<>();
+        for (int i = 0; i < context.length; i++) {
+            if (!isNodeIn(context[i])) {
+                list.add(context[i]);
+                edges.add(new Edge<>(node, context[i], weights[i])); //添加边权
+            }
+        }
+        Array.set(matrix, getIndexOfObject(node), list.toArray((T[]) Array.newInstance(clazz, 0)));
+    }
+
     @SuppressWarnings("unchecked")
     public void makeWithOutEdge(T node,T[] context){
         List<T>list=new ArrayList<>();

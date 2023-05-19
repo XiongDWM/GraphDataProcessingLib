@@ -22,7 +22,7 @@ public class Edge<T> {
         this.weight = weight;
     }
 
-    public  getVertex1() {
+    public  T getVertex1() {
         return vertex1;
     }
 

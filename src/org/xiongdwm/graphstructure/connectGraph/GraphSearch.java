@@ -179,6 +179,15 @@ public class GraphSearch<T> {
         }
     }
 
+    private double getEdgeWeight(T v1, T v2) {
+        for (Edge<T> edge : G.getEdges()) {
+            if (edge.getVertex1().equals(v1) && edge.getVertex2().equals(v2)) {
+                return edge.getWeight();
+            }
+        }
+        return Integer.MAX_VALUE; //如果边不存在，则返回“无限大”值
+    }
+
     private void prime(T root){
         //int pathCount=0;
         T[] targets=G.get(root);

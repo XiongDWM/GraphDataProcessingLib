@@ -168,6 +168,7 @@ public class GraphSearch<T> {
     }
 
     private void dfs(T root, int weight) {
+        System.out.println(weight);
         if (G.isNodeIn(root)) return;
         if(dominator!=null&&G.isNodeIn(dominator))return;
         if (root.equals(theTarget)) {

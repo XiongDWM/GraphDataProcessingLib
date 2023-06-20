@@ -98,6 +98,10 @@ public class GraphStructure<T> {
         return weightMap;
     }
 
+    public void setWeightMap(Map<String,Integer>weightMap){
+        this.weightMap=weightMap;
+    }
+
     // 修改后的 getWeight 方法
     public int getWeight(T v1,T v2){
         String key = v1.toString() + "-" + v2.toString();

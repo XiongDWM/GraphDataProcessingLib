@@ -5,7 +5,7 @@ import java.util.Objects;
 public class Edge<T> {
     private T vertex1;
     private T vertex2;
-    private double weight;
+    private int weight = 1;
 
     public Edge(){
 
@@ -15,14 +15,14 @@ public class Edge<T> {
         this.vertex1 = vertex1;
         this.vertex2 = vertex2;
     }
-
-    public Edge(T vertex1, T vertex2,double weight) {
+    //constructor with weight  
+    public Edge(T vertex1, T vertex2, int weight) {
         this.vertex1 = vertex1;
         this.vertex2 = vertex2;
         this.weight = weight;
     }
 
-    public  T getVertex1() {
+    public Object getVertex1() {
         return vertex1;
     }
 
@@ -30,7 +30,7 @@ public class Edge<T> {
         this.vertex1 = vertex1;
     }
 
-    public T getVertex2() {
+    public Object getVertex2() {
         return vertex2;
     }
 
@@ -38,11 +38,11 @@ public class Edge<T> {
         this.vertex2 = vertex2;
     }
 
-    public double getWeight() {
+    public int getWeight() {
         return weight;
     }
 
-    public void setWeight(double weight) {
+    public void setWeight(int weight) {
         this.weight = weight;
     }
 
@@ -78,6 +78,10 @@ public class Edge<T> {
                 "vertex1=" + vertex1 +
                 ", vertex2=" + vertex2 +
                 '}';
+    }
+
+    public Edge<T> reverse() {
+        return new Edge<>(vertex2,vertex1);
     }
 
 }

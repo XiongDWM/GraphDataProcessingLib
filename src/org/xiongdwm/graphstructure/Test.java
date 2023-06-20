@@ -7,78 +7,94 @@ import org.xiongdwm.graphstructure.discrete.Node;
 import org.xiongdwm.graphstructure.utils.geometry.GeoAbstract;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class Test {
     public static void main(String[] args) {
+        // Long[] nodes = {0L, 1L, 2L, 0L, 3L, 4L, 5L};
+        // Long[] nodes0 = {1L};
+        // Long[] nodes1 = {0L, 2L, 5L};
+        // Long[] nodes2 = {1L,3L};
+        // Long[] nodes3 = {2L, 4L};
+        // Long[] node4 = {3L, 5L};
+        // Long[] node5 = {1L,4L};
+        // GraphStructure<Long> graphStructure = new GraphStructure<>(nodes);
+        // int a = graphStructure.getIndexOfObject(0L);
+        // //System.out.println(a);
+        // graphStructure.make(0L, nodes0);
+        // graphStructure.make(1L, nodes1);
+        // graphStructure.make(2L, nodes2);
+        // graphStructure.make(3L, nodes3);
+        // graphStructure.make(4L, node4);
+        // graphStructure.make(5L, node5);
+        // GraphSearch<Long> dfs = new GraphSearch<>(graphStructure, 1L, GraphSearch.Manipulate.PRIME, null, 5L, 10,null);
+        // //System.out.println(dfs.getAllPaths().size());
+        // //System.out.println(dfs.getMinConnection());
+        // /*        *//*GraphSearch<Long> bfs=new GraphSearch<>(graphStructure,2L,GraphSearch.Manipulate.BREADTH_FIRST,null,null,0);
+        // List<Long> path = bfs.pathTo(3L);
+        // System.out.println(path);*//*
+        // List<Edge<Long>> eb = graphStructure.getEdges();
+        // System.out.println(eb);
+        // System.out.println(dfs.getAllPaths());
+        // List<Edge<Long>> edges = graphStructure.tailed();
+        // System.out.println(edges);
+        // System.out.println("--!!!!!!!-------------------------------------------------");
+        // System.out.println(dfs.getAllPaths());
+        // LinkedList<Object> lst = new LinkedList<>();
+        // List<Object> l0 = new ArrayList<>(Arrays.asList(nodes0));
+        // List<Object> l1 = new ArrayList<>(Arrays.asList(nodes1));
+        // //List<Object> l2=new ArrayList<>(Arrays.asList(nodes2));
+        // List<Object> l3 = new ArrayList<>(Arrays.asList(nodes3));
+        // lst.add(l0);
+        // lst.add(l1);
+        // //lst.add(l2);
+        // lst.add(l3);
+        // System.out.println("---------------------------------------------------");
+        // System.out.println(lst);*/
+        // GeoAbstract eg=new TestGeoAbstract();
+        // List<Node<?>>listse=new ArrayList<>();
+        // Random random=new Random();
+        // BigDecimal bigDecimal;
+        // Node<?>nss;
+        // for(int i=0;i<3000;i++){
+        //     bigDecimal= BigDecimal.valueOf(random.nextInt(1000) / 13.3);
+        //     double x=bigDecimal.setScale(3,BigDecimal.ROUND_HALF_UP).doubleValue();
+        //     bigDecimal= BigDecimal.valueOf(random.nextInt(1000) / 13.3);
+        //     double y=bigDecimal.setScale(3,BigDecimal.ROUND_HALF_UP).doubleValue();
+        //     nss=new Node<>(x,y);
+        //     listse.add(nss);
+        // }
+        // Node<?>[] list= Stream
+        //         .of(new Node<>(1d,2d),new Node<>(2d,5d),new Node<>(2d,10d),new Node<>(4d,9d),new Node<>(5d,8d),new Node<>(4d,3d),new Node<>(6d,4d),new Node<>(7d,5d),new Node<>(8d,4d))
+        //         .toArray(Node<?>[]::new);
+        // Node<?>[] hs= listse.toArray(new Node<?>[0]);
+        // Cluster cluster =new Cluster(eg,hs);
+        // cluster.t();
+        // Hashtable<Node<?>,List<Node<?>>>table= cluster.clustering();
+        // System.out.println(table.toString());
+        //test dfs with weight
         Long[] nodes = {0L, 1L, 2L, 0L, 3L, 4L, 5L};
         Long[] nodes0 = {1L};
-        Long[] nodes1 = {0L, 2L, 5L};
-        Long[] nodes2 = {1L,3L};
-        Long[] nodes3 = {2L, 4L};
+        Long[] nodes1 = {0L, 2L, 3L,5L};
+        Long[] nodes2 = {1L, 3L};
+        Long[] nodes3 = {1L,2L, 4L};
         Long[] node4 = {3L, 5L};
-        Long[] node5 = {1L,4L};
+        Long[] node5 = {1L, 4L};
         GraphStructure<Long> graphStructure = new GraphStructure<>(nodes);
-        int a = graphStructure.getIndexOfObject(0L);
-        //System.out.println(a);
-        graphStructure.make(0L, nodes0);
-        graphStructure.make(1L, nodes1);
-        graphStructure.make(2L, nodes2);
-        graphStructure.make(3L, nodes3);
-        graphStructure.make(4L, node4);
-        graphStructure.make(5L, node5);
-        GraphSearch<Long> dfs = new GraphSearch<>(graphStructure, 1L, GraphSearch.Manipulate.PRIME, null, 5L, 10,null);
-        //System.out.println(dfs.getAllPaths().size());
+        graphStructure.make(0L, nodes0, new int []{1});
+        graphStructure.make(1L, nodes1, new int []{1,1,0,0});
+        graphStructure.make(2L, nodes2, new int []{1,1});
+        graphStructure.make(3L, nodes3, new int []{0,1,5});
+        graphStructure.make(4L, node4, new int []{5,5});
+        graphStructure.make(5L, node5,new int []{0,5});
+        System.out.println(graphStructure.getWeightMap());
+        GraphSearch<Long> dfs = new GraphSearch<Long>(graphStructure, 1L,GraphSearch.Manipulate.DEPTH_FIRST,null , 3L, 0, null,5);
+        System.out.println(dfs.getAllPaths());
         //System.out.println(dfs.getMinConnection());
-        /*        *//*GraphSearch<Long> bfs=new GraphSearch<>(graphStructure,2L,GraphSearch.Manipulate.BREADTH_FIRST,null,null,0);
-        List<Long> path = bfs.pathTo(3L);
-        System.out.println(path);*//*
-        List<Edge<Long>> eb = graphStructure.getEdges();
-        System.out.println(eb);
-        System.out.println(dfs.getAllPaths());
-        List<Edge<Long>> edges = graphStructure.tailed();
-        System.out.println(edges);
-        System.out.println("--!!!!!!!-------------------------------------------------");
-        System.out.println(dfs.getAllPaths());
-        LinkedList<Object> lst = new LinkedList<>();
-        List<Object> l0 = new ArrayList<>(Arrays.asList(nodes0));
-        List<Object> l1 = new ArrayList<>(Arrays.asList(nodes1));
-        //List<Object> l2=new ArrayList<>(Arrays.asList(nodes2));
-        List<Object> l3 = new ArrayList<>(Arrays.asList(nodes3));
-        lst.add(l0);
-        lst.add(l1);
-        //lst.add(l2);
-        lst.add(l3);
-        System.out.println("---------------------------------------------------");
-        System.out.println(lst);*/
-        GeoAbstract eg=new TestGeoAbstract();
-        List<Node<?>>listse=new ArrayList<>();
-        Random random=new Random();
-        BigDecimal bigDecimal;
-        Node<Integer>nss;
-        for(int i=0;i<15000;i++){
-            bigDecimal= BigDecimal.valueOf(random.nextInt(1000) / 13.3);
-            double x=bigDecimal.setScale(3, RoundingMode.HALF_UP).doubleValue();
-            bigDecimal= BigDecimal.valueOf(random.nextInt(1000) / 13.3);
-            double y=bigDecimal.setScale(3, RoundingMode.HALF_UP).doubleValue();
-            nss=new Node<>(x,y);
-            Integer id=i;
-            nss.setUniqueTag(id);
-            nss.setWeight(0);
-            listse.add(nss);
-        }
-        Node<?>[] list= Stream
-                .of(new Node<>(15d,8d),new Node<>(15d,10d),new Node<>(4d,7d),new Node<>(8d,8d),new Node<>(8d,13d),new Node<>(13d,5d),new Node<>(13d,13d))
-                .toArray(Node<?>[]::new);
-        Node<?>[] hs= listse.toArray(new Node<?>[0]);
-        Cluster cluster =new Cluster(eg,list);
-        //cluster.t();
-        Hashtable<Node<?>,List<Node<?>>>table= cluster.clustering();
-        System.out.println(table.toString());
-        System.out.println(table.size());
+
+
 
 /*        int[] ar={1,2,3,4,5,6,7,13,15,613,312,321,21};
         int[] b=new int[ar.length];

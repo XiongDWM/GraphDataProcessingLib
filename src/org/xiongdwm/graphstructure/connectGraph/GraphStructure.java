@@ -1,10 +1,4 @@
 package org.xiongdwm.graphstructure.connectGraph;
-/*
- * @description first time offer some api to the community even it seems not very useful lol
- *
- */
-
-import org.xiongdwm.graphstructure.connectGraph.Edge;
 
 import java.lang.reflect.Array;
 import java.util.*;
@@ -14,7 +8,7 @@ import java.util.stream.Collectors;
  * @author xiong
  * @version 1.06 01/06/2023
  * @overall-description put the data into a graph structure 图结构
- * @ver-description store weight 保存边权值
+ * @ver-description store weight x保存边权值
  */
 public class GraphStructure<T> {
     private final int nodesNum;
@@ -22,6 +16,7 @@ public class GraphStructure<T> {
     private final T[][] matrix;
     private final List<Edge<T>> edges;
     private final Class<?> clazz;
+    private Map<String, Integer> weightMap; // 新增的 Map 对象
 
     @SuppressWarnings("unchecked")
     public GraphStructure(T[] nodes){
@@ -30,6 +25,7 @@ public class GraphStructure<T> {
         this.edges=new ArrayList<>();
         this.clazz=nodes[0].getClass();
         matrix= (T[][]) Array.newInstance(clazz,nodesNum,nodesNum);
+        weightMap = new HashMap<>(); // 初始化 Map 对象
         for(int i=0;i<nodesNum;i++){
             matrix[i]= (T[]) Array.newInstance(clazz,nodesNum);
         }
@@ -94,6 +90,37 @@ public class GraphStructure<T> {
         e=null;
     }
 
+    @SuppressWarnings("unchecked")
+    public void make(T node,T[] context,int[] weight){
+        List<T>list=new ArrayList<>();
+        for(T o:context){
+            if(!isNodeIn(o)) list.add(o);
+        }
+        T[] e=(T[])Array.newInstance(clazz,0);
+        Array.set(matrix,getIndexOfObject(node), list.toArray(e));
+        list=null;
+        e=null;
+        for (int i = 0; i < context.length; i++) {
+            edges.add(new Edge<>(node, context[i], weight[i]));
+            weightMap.put(node.toString() + "-" + context[i].toString(), weight[i]); // 将边的权值存储到 Map 中
+        }
+    }
+
+    public Map<String,Integer>getWeightMap(){
+        return weightMap;
+    }
+
+    // 修改后的 getWeight 方法
+    public int getWeight(T v1,T v2){
+        String key = v1.toString() + "-" + v2.toString();
+        if (weightMap.containsKey(key)) {
+            return weightMap.get(key);
+        } else {
+            return 0;
+        }
+    }
+
+
     public int getIndexOfObject(T obj){
         return Arrays.asList(nodes).indexOf(obj);
     }
@@ -145,6 +172,16 @@ public class GraphStructure<T> {
         T[] array=get(node);
         return Arrays.stream(array).filter(it->!trash.contains(it)&&it!=null).map(o-> new Edge<>(node, o)).collect(Collectors.toList());
     }
-
+    //最小连通子图
+    public List<Edge<T>> minTailed(){
+        List<Edge<T>> edges=tailed();
+        List<Edge<T>> min=new ArrayList<>();
+        for(Edge<T> edge:edges){
+            if(!min.contains(edge)&&!min.contains(edge.reverse())){
+                min.add(edge);
+            }
+        }
+        return min;
+    }
 
 }

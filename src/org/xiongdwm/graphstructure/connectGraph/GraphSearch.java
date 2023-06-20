@@ -17,6 +17,7 @@ public class GraphSearch<T> {
     private int maximumOutDegree; // to limit the path length, 规定路径出度，也就时最多跳数
     private T dominator; // dominator 必经节点
     private final List<Edge<T>>minConnection= new ArrayList<>();
+    private int weightLimit;
 
     public enum Manipulate {
         BREADTH_FIRST("广度优先"),
@@ -60,7 +61,7 @@ public class GraphSearch<T> {
                 dfs(root);
                 break;
             case DJKSTRA:
-                djkstra();
+                djkstra(root);
                 break;
             case PRIME:
                 prime(root);
@@ -88,13 +89,49 @@ public class GraphSearch<T> {
             case DEPTH_FIRST:
                 throw new WrongMemberException("misusing constructor,need param `target`");
             case DJKSTRA:
-                this.djkstra();
+                this.djkstra(root);
                 break;
             case PRIME:
                 this.prime(root);
             case NONE_STRUCTURE:
         }
 
+    }
+
+    @SuppressWarnings("unchecked")
+    public GraphSearch(GraphStructure<T> G, T root, Manipulate manipulate, T[] nodesAbandon, T target,int maximumOutDegree,T dominator,int weightLimit) {
+        Class<?> clazz = root.getClass();
+        this.wasVisited = new boolean[G.getNodesNum()];
+        this.edgeTo = (T[]) Array.newInstance(clazz, G.getNodesNum());
+        this.dominator = dominator;
+        theTarget = target;
+        this.maximumOutDegree = maximumOutDegree;
+        this.G = G;
+        this.weightLimit=weightLimit;
+        for (int i = 0; i < G.getNodesNum(); i++) {
+            wasVisited[i] = false;
+            edgeTo[i] = null;
+        }
+        if (nodesAbandon != null) {
+            for (T o : nodesAbandon) {
+                setWasVisited(o);
+            }
+        }
+        switch (manipulate) {
+            case BREADTH_FIRST:
+                bfs(root);
+                break;
+            case DEPTH_FIRST:
+                dfs(root,0);
+                break;
+            case DJKSTRA:
+                djkstra(root);
+                break;
+            case PRIME:
+                prime(root);
+            case NONE_STRUCTURE:
+                break;
+        }
     }
 
     private void dfs(T root) {
@@ -119,9 +156,43 @@ public class GraphSearch<T> {
             T x = nodes[i];
             if (x == null) continue;
             int index = G.getIndexOfObject(x);
-            if (maximumOutDegree == 0) maximumOutDegree = path.size() + 1;
-            if (!wasVisited[index] && path.size() < maximumOutDegree) {
-                dfs(nodes[i]);
+            if (!wasVisited[index]) {
+                if (maximumOutDegree==0||path.size() < maximumOutDegree) dfs(nodes[i]);
+            }
+            if (i == nodes.length - 1) {
+                path.pop();
+                wasVisited[G.getIndexOfObject(root)] = false;
+                return;
+            }
+        }
+    }
+
+    private void dfs(T root, int weight) {
+        if (G.isNodeIn(root)) return;
+        if(dominator!=null&&G.isNodeIn(dominator))return;
+        if (root.equals(theTarget)) {
+            if(weight>weightLimit)return;// check if weight is within limit
+            path.push(root);
+            List<T> list = new ArrayList<>(path); //store path 转储
+            if(dominator!=null){
+                if(list.contains(dominator))allPaths.add(list);
+            }else {
+                allPaths.add(list); 
+            }
+            path.pop();
+            wasVisited[G.getIndexOfObject(root)] = false;
+            return;
+        }
+        T[] nodes = G.get(root); //adjacency matrix of root at this term 所有子节点
+        wasVisited[G.getIndexOfObject(root)] = true;
+        path.push(root);
+        for (int i = 0; i < nodes.length; i++) {
+            T x = nodes[i];
+            if (x == null) continue;
+            int index = G.getIndexOfObject(x);
+            if (!wasVisited[index]) {
+                int currentWeight=weight+G.getWeight(root, x);
+                if (maximumOutDegree==0||path.size() < maximumOutDegree) dfs(nodes[i],currentWeight); // pass weight to next node
             }
             if (i == nodes.length - 1) {
                 path.pop();
@@ -150,44 +221,25 @@ public class GraphSearch<T> {
         }
     }
 
-    private void djkstra() {
-        PriorityQueue<Edge<T>> pq = new PriorityQueue<>(Comparator.comparingDouble(Edge::getWeight));
-        for (Edge<T> edge : G.getEdges()) {
-            if (edge.getVertex1().equals(G.getNodes()[0])) {
-                pq.add(edge);
-            }
-        }
-        Set<T> visited = new HashSet<>();
-        while (!pq.isEmpty()) {
-            Edge<T> edge = pq.poll();
-            if (visited.contains(edge.getVertex2())) {
-                continue;
-            }
-            visited.add(edge.getVertex2());
-            int index = G.getIndexOfObject(edge.getVertex2());
-            edgeTo[index] = edge.getVertex1();
-            if (edge.getVertex2().equals(theTarget)) {
-                break;
-            }
-            for (T neighbor : G.get(edge.getVertex2())) {
-                if (neighbor == null) {
-                    continue;
+    private void djkstra(T root){
+        int rootPtr = G.getIndexOfObject(root);
+        Queue<Integer> queue = new ArrayDeque<>();
+        queue.add(rootPtr);
+        wasVisited[rootPtr] = true;
+        while (!queue.isEmpty()) {
+            int index = queue.poll();
+            for (T o : G.getRow(index)) {
+                if (o == null) continue;
+                int ptr = G.getIndexOfObject(o);
+                if (!wasVisited[ptr]) {
+                    edgeTo[ptr] = G.getNodes()[index];
+                    wasVisited[ptr] = true;
+                    queue.add(ptr);
                 }
-                int neighborIndex = G.getIndexOfObject(neighbor);
-                pq.add(new Edge<>(edge.getVertex2(), neighbor, getEdgeWeight(edge.getVertex2(), neighbor)));
             }
         }
     }
-
-    private double getEdgeWeight(T v1, T v2) {
-        for (Edge<T> edge : G.getEdges()) {
-            if (edge.getVertex1().equals(v1) && edge.getVertex2().equals(v2)) {
-                return edge.getWeight();
-            }
-        }
-        return Integer.MAX_VALUE; //如果边不存在，则返回“无限大”值
-    }
-
+    
     private void prime(T root){
         //int pathCount=0;
         T[] targets=G.get(root);
@@ -258,10 +310,28 @@ public class GraphSearch<T> {
     }
 
     public LinkedList<List<T>> getAllPaths() {
+        pathOrderByWeight(allPaths);
         return allPaths;
     }
 
     public List<Edge<T>> getMinConnection() {
         return minConnection;
+    }
+
+    private void pathOrderByWeight(LinkedList<List<T>> p){
+        p.sort(new Comparator<List<T>>() {
+            @Override
+            public int compare(List<T> o1, List<T> o2) {
+                int weight1=0;
+                int weight2=0;
+                for (int i = 0; i < o1.size()-1; i++) {
+                    weight1+=G.getWeight(o1.get(i),o1.get(i+1));
+                }
+                for (int i = 0; i < o2.size()-1; i++) {
+                    weight2+=G.getWeight(o2.get(i),o2.get(i+1));
+                }
+                return weight1-weight2;
+            }
+        });
     }
 }

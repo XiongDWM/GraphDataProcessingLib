@@ -67,18 +67,6 @@ public class GraphStructure<T> {
     }
 
     @SuppressWarnings("unchecked")
-    public void make(T node, T[] context, int[] weights) { //添加边权参数weights
-        List<T> list = new ArrayList<>();
-        for (int i = 0; i < context.length; i++) {
-            if (!isNodeIn(context[i])) {
-                list.add(context[i]);
-                edges.add(new Edge<>(node, context[i], weights[i])); //添加边权
-            }
-        }
-        Array.set(matrix, getIndexOfObject(node), list.toArray((T[]) Array.newInstance(clazz, 0)));
-    }
-
-    @SuppressWarnings("unchecked")
     public void makeWithOutEdge(T node,T[] context){
         List<T>list=new ArrayList<>();
         for(T o:context){
@@ -113,11 +101,7 @@ public class GraphStructure<T> {
     // 修改后的 getWeight 方法
     public int getWeight(T v1,T v2){
         String key = v1.toString() + "-" + v2.toString();
-        if (weightMap.containsKey(key)) {
-            return weightMap.get(key);
-        } else {
-            return 0;
-        }
+        return weightMap.getOrDefault(key, 0);
     }
 
 

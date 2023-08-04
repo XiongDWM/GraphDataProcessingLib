@@ -171,6 +171,7 @@ public class GraphSearch<T> {
         System.out.println(weight);
         if (G.isNodeIn(root)) return;
         if(dominator!=null&&G.isNodeIn(dominator))return;
+        if(weight==weightLimit&&!root.equals(theTarget))return;
         if (root.equals(theTarget)) {
             if(weight>weightLimit)return;// check if weight is within limit
             path.push(root);

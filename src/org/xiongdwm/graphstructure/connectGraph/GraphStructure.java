@@ -105,7 +105,17 @@ public class GraphStructure<T> {
     // 修改后的 getWeight 方法
     public int getWeight(T v1,T v2){
         String key = v1.toString() + "-" + v2.toString();
-        return weightMap.getOrDefault(key, 0);
+        String key1 = v2.toString() + "-" + v1.toString();
+        Integer weight=weightMap.get(key);
+        Integer weight1=weightMap.get(key1);
+        if (weight == null && weight1 == null) {
+            return 0;
+        } else if (weight == null) {
+            return weight1;
+        } else if (weight1 == null) {
+            return weight;
+        }
+        return Math.min(weight1,weight);
     }
 
 

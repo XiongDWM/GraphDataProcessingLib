@@ -255,7 +255,7 @@ public class GraphSearch<T> {
             record.add(target);
             this.theTarget = root;
             this.dfs(target);
-            int step=this.getAllPaths().size();
+            int step=this.getAllPaths(false).size();
             if(step<2)continue;
             minConnection.add(new Edge<>(root, target));
             if(record.contains(target))continue;
@@ -311,8 +311,8 @@ public class GraphSearch<T> {
         }
     }
 
-    public LinkedList<List<T>> getAllPaths() {
-        pathOrderByWeight(allPaths);
+    public LinkedList<List<T>> getAllPaths(boolean sortedOrNot) {
+        if(sortedOrNot)pathOrderByWeight(allPaths);
         return allPaths;
     }
 

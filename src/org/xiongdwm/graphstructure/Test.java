@@ -90,7 +90,7 @@ public class Test {
         graphStructure.make(4L, node4, new int []{5,5});
         graphStructure.make(5L, node5,new int []{0,5});
         GraphSearch<Long> dfs = new GraphSearch<Long>(graphStructure, 1L,GraphSearch.Manipulate.DEPTH_FIRST,null , 3L, 0, null,11);
-        System.out.println(dfs.getAllPaths());
+        System.out.println(dfs.getAllPaths(true));
 
         Map<String,Integer>tesMap=new HashMap<>();
         tesMap.put("1-b",1);

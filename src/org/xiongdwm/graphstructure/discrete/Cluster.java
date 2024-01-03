@@ -13,7 +13,7 @@ public class Cluster {
     private final int nodesCount;
     private final static Class<?> clazz = Node.class;
     private final boolean[] unChange;
-
+    // k_num 值的选定 可以通过多次尝试选定 求knum的分母从1-9递增 然后计算轮廓系数 通过轮廓系数法确定最优的结果出现在几
     public Cluster(GeoAbstract geoMethods, Node<?>[] nodes) {
         nodeArray = nodes;
         this.geoMethods = geoMethods;
@@ -51,6 +51,7 @@ public class Cluster {
 
         return result;
     }
+
     private Node<?>[] getRandomPoints(int amount) {
         Node<?>[] points = new Node<?>[amount];
         Random random = new Random();
@@ -143,5 +144,6 @@ public class Cluster {
         System.arraycopy(s1,0,s2,0,s2.length);
         System.out.println(Arrays.toString(s2));
     }
+
 
 }

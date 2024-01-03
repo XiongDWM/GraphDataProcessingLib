@@ -11,11 +11,11 @@ import java.util.stream.Collectors;
  * @ver-description store weight x保存边权值
  */
 public class GraphStructure<T> {
-    private final int nodesNum;
+    private  int nodesNum;
     private T[] nodes;
-    private final T[][] matrix;
-    private final List<Edge<T>> edges;
-    private final Class<?> clazz;
+    private  T[][] matrix;
+    private  List<Edge<T>> edges;
+    private  Class<?> clazz;
     private Map<String, Integer> weightMap; // 新增的 Map 对象
 
     @SuppressWarnings("unchecked")
@@ -29,6 +29,9 @@ public class GraphStructure<T> {
         for(int i=0;i<nodesNum;i++){
             matrix[i]= (T[]) Array.newInstance(clazz,nodesNum);
         }
+    }
+
+    public GraphStructure() {
     }
 
     public T[] getNodes() {
@@ -181,5 +184,6 @@ public class GraphStructure<T> {
         }
         return min;
     }
+
 
 }

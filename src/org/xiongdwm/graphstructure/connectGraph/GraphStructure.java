@@ -7,7 +7,7 @@ import java.util.stream.Collectors;
 /**
  * @author xiong
  * @version 1.06 01/06/2023
- * @overall-description put the data into a graph structure 图结构
+ * @overall-description form data into a graph structure 图结构
  * @ver-description store weight x保存边权值
  */
 public class GraphStructure<T> {

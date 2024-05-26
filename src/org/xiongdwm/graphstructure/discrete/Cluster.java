@@ -67,6 +67,7 @@ public class Cluster {
         return points;
     }
 
+
     @SuppressWarnings("unchecked")
     public Hashtable<Node<?>, List<Node<?>>> clustering() {
         Node<?>[] k = randomPoints(k_num); //numbers of cluster
@@ -142,6 +143,9 @@ public class Cluster {
         Integer[] s2={1,2,3,4,5};
         System.arraycopy(s1,0,s2,0,s2.length);
         System.out.println(Arrays.toString(s2));
+        String s="hello";
+        String rs=new StringBuilder(s).reverse().toString();
+        System.out.println(rs);
     }
 
 }

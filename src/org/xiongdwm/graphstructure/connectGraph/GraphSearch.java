@@ -13,7 +13,7 @@ public class GraphSearch<T> {
     private final GraphStructure<T> G;
     private T theTarget;
     private final LinkedList<List<T>> allPaths = new LinkedList<>(); // collection of all recorded paths 所有路径集合
-    private final Stack<T> path = new Stack<>(); //a single path 一条路径
+    private final Stack<T> path = new Stack<>(); //get a path 一条路径
     private int maximumOutDegree; // to limit the path length, 规定路径出度，也就时最多跳数
     private T dominator; // dominator 必经节点
     private final List<Edge<T>>minConnection= new ArrayList<>();
@@ -135,8 +135,8 @@ public class GraphSearch<T> {
     }
 
     private void dfs(T root) {
-        if (G.isNodeIn(root)) return;
-        if(dominator!=null&&G.isNodeIn(dominator))return;
+        if (G.isNodeNotIn(root)) return;
+        if(dominator!=null&&G.isNodeNotIn(dominator))return;
         if (root.equals(theTarget)) {
             path.push(root);
             List<T> list = new ArrayList<>(path); //store path 转储
@@ -149,17 +149,17 @@ public class GraphSearch<T> {
             wasVisited[G.getIndexOfObject(root)] = false;
             return;
         }
-        T[] nodes = G.get(root); //adjacency matrix of root at this term 所有子节点
+        List<T> nodes = G.get(root); //adjacency matrix of root at this term 所有子节点
         wasVisited[G.getIndexOfObject(root)] = true;
         path.push(root);
-        for (int i = 0; i < nodes.length; i++) {
-            T x = nodes[i];
+        for (int i = 0; i < nodes.size(); i++) {
+            T x = nodes.get(i);
             if (x == null) continue;
             int index = G.getIndexOfObject(x);
             if (!wasVisited[index]) {
-                if (maximumOutDegree==0||path.size() < maximumOutDegree) dfs(nodes[i]);
+                if (maximumOutDegree==0||path.size() < maximumOutDegree) dfs(nodes.get(i));
             }
-            if (i == nodes.length - 1) {
+            if (i == nodes.size() - 1) {
                 path.pop();
                 wasVisited[G.getIndexOfObject(root)] = false;
                 return;
@@ -169,8 +169,8 @@ public class GraphSearch<T> {
 
     private void dfs(T root, int weight) {
         System.out.println(weight);
-        if (G.isNodeIn(root)) return;
-        if(dominator!=null&&G.isNodeIn(dominator))return;
+        if (G.isNodeNotIn(root)) return;
+        if(dominator!=null&&G.isNodeNotIn(dominator))return;
         if(weight==weightLimit&&!root.equals(theTarget))return;
         if (root.equals(theTarget)) {
             if(weight>weightLimit)return;// check if weight is within limit
@@ -179,24 +179,24 @@ public class GraphSearch<T> {
             if(dominator!=null){
                 if(list.contains(dominator))allPaths.add(list);
             }else {
-                allPaths.add(list); 
+                allPaths.addLast(list);
             }
             path.pop();
             wasVisited[G.getIndexOfObject(root)] = false;
             return;
         }
-        T[] nodes = G.get(root); //adjacency matrix of root at this term 所有子节点
+        List<T> nodes = G.get(root); //adjacency matrix of root at this term 所有子节点
         wasVisited[G.getIndexOfObject(root)] = true;
         path.push(root);
-        for (int i = 0; i < nodes.length; i++) {
-            T x = nodes[i];
+        for (int i = 0; i < nodes.size(); i++) {
+            T x = nodes.get(i);
             if (x == null) continue;
             int index = G.getIndexOfObject(x);
             if (!wasVisited[index]) {
                 int currentWeight=weight+G.getWeight(root, x);
-                if (maximumOutDegree==0||path.size() < maximumOutDegree) dfs(nodes[i],currentWeight); // pass weight to next node
+                if (maximumOutDegree==0||path.size() < maximumOutDegree) dfs(nodes.get(i),currentWeight); // pass weight to next node
             }
-            if (i == nodes.length - 1) {
+            if (i == nodes.size() - 1) {
                 path.pop();
                 wasVisited[G.getIndexOfObject(root)] = false;
                 return;
@@ -244,8 +244,8 @@ public class GraphSearch<T> {
     
     private void prime(T root){
         //int pathCount=0;
-        T[] targets=G.get(root);
-        int outDegree=targets.length;
+        List<T> targets=G.get(root);
+        int outDegree=targets.size();
         if(outDegree<2) return;
 
         List<T>record=new ArrayList<>();
@@ -266,7 +266,7 @@ public class GraphSearch<T> {
 
 
     public boolean hasPathTo(T target) {
-        if (G.isNodeIn(target)) return false;
+        if (G.isNodeNotIn(target)) return false;
         return wasVisited[G.getIndexOfObject(target)];
     }
 

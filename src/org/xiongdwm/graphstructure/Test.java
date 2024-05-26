@@ -22,12 +22,12 @@ public class Test {
         Long[] node4 = {3L, 5L};
         Long[] node5 = {1L, 4L};
         GraphStructure<Long> graphStructure = new GraphStructure<>(nodes);
-        graphStructure.make(0L, nodes0, new int []{1});
-        graphStructure.make(1L, nodes1, new int []{1,1,6,0});
-        graphStructure.make(2L, nodes2, new int []{1,1});
-        graphStructure.make(3L, nodes3, new int []{0,1,5});
-        graphStructure.make(4L, node4, new int []{5,5});
-        graphStructure.make(5L, node5,new int []{0,5});
+        graphStructure.make(0L, Arrays.asList(nodes0), new int []{1});
+        graphStructure.make(1L, Arrays.asList(nodes1), new int []{1,1,6,0});
+        graphStructure.make(2L, Arrays.asList(nodes2), new int []{1,1});
+        graphStructure.make(3L, Arrays.asList(nodes3), new int []{0,1,5});
+        graphStructure.make(4L, Arrays.asList(node4), new int []{5,5});
+        graphStructure.make(5L, Arrays.asList(node5),new int []{0,5});
         GraphSearch<Long> dfs = new GraphSearch<Long>(graphStructure, 1L,GraphSearch.Manipulate.DEPTH_FIRST,null , 3L, 0, null,11);
         System.out.println(dfs.getAllPaths(true));
 
@@ -35,9 +35,8 @@ public class Test {
         tesMap.put("1-b",1);
         tesMap.put("b-1",0);
         tesMap.put("2-b",1);
-        System.out.println(tesMap.get("3-0"));
-        //System.out.println(dfs.getMinConnection());
-
+//        System.out.println(tesMap.get("3-0"));
+//        System.out.println(dfs.getMinConnection());
 
 
     }

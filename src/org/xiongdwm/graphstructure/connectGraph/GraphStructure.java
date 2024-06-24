@@ -15,9 +15,9 @@ import java.util.stream.Collectors;
 public class GraphStructure<T> {
     private int nodesNum;
     private T[] nodes;
-    private Map<T,List<T>> matrix;
+    private final Map<T,List<T>> matrix;
     private final List<Edge<T>> edges;
-    private final Class<?> clazz;
+    private Class<?> clazz;
     private Map<String, Integer> weightMap; // 新增的 Map 对象
 
     public GraphStructure(){
@@ -26,6 +26,14 @@ public class GraphStructure<T> {
         matrix= new HashMap<>();
         weightMap = new HashMap<>(); // 初始化 Map 对象
     }
+
+    public GraphStructure(Class<?> clazz){
+        this.edges=new ArrayList<>();
+        this.clazz=clazz;
+        matrix= new HashMap<>();
+        weightMap = new HashMap<>(); // 初始化 Map 对象
+    }
+
 
     public GraphStructure(T[] nodes){
         this.nodes=nodes;
@@ -39,6 +47,11 @@ public class GraphStructure<T> {
     @SuppressWarnings("unchecked")
     public void init(){
         if(null==matrix) throw new WrongMemberException("matrix is empty");
+        if(null==clazz)matrix.keySet().stream().findAny().ifPresent(it->{
+            this.clazz=it.getClass();
+            System.out.println(clazz.getName());
+        });
+        if(null==clazz)throw new WrongMemberException("clazz undefine");
         nodes=matrix.keySet().toArray((T[])Array.newInstance(clazz,0));
         nodesNum=nodes.length;
     }
@@ -49,6 +62,7 @@ public class GraphStructure<T> {
     }
 
     public void setNodes(T[] nodes) {
+        if(null==clazz)this.clazz=nodes[0].getClass();
         this.nodes = nodes;
     }
 
@@ -63,10 +77,7 @@ public class GraphStructure<T> {
     }
 
     public void make(T node,List<T> context,int[] weight){
-        List<T>list=new ArrayList<>();
-        for(T o:context){
-            if(!isNodeNotIn(o)) list.add(o);
-        }
+        List<T> list = new ArrayList<>(context);
         matrix.put(node, list);
         list=null;
         for (int i = 0; i < context.size(); i++) {

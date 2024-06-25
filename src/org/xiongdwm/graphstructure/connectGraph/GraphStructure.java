@@ -4,6 +4,7 @@ import org.xiongdwm.graphstructure.exception.WrongMemberException;
 
 import java.lang.reflect.Array;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 /**
@@ -15,23 +16,23 @@ import java.util.stream.Collectors;
 public class GraphStructure<T> {
     private int nodesNum;
     private T[] nodes;
-    private final Map<T,List<T>> matrix;
+    private final ConcurrentHashMap<T,List<T>> matrix;
     private final List<Edge<T>> edges;
     private Class<?> clazz;
-    private Map<String, Integer> weightMap; // 新增的 Map 对象
+    private ConcurrentHashMap<String, Integer> weightMap; // 新增的 Map 对象
 
     public GraphStructure(){
         this.edges=new ArrayList<>();
         this.clazz=null;
-        matrix= new HashMap<>();
-        weightMap = new HashMap<>(); // 初始化 Map 对象
+        matrix= new ConcurrentHashMap<>();
+        weightMap = new ConcurrentHashMap<>(); // 初始化 Map 对象
     }
 
     public GraphStructure(Class<?> clazz){
         this.edges=new ArrayList<>();
         this.clazz=clazz;
-        matrix= new HashMap<>();
-        weightMap = new HashMap<>(); // 初始化 Map 对象
+        matrix= new ConcurrentHashMap<>();
+        weightMap = new ConcurrentHashMap<>(); // 初始化 Map 对象
     }
 
 
@@ -40,8 +41,8 @@ public class GraphStructure<T> {
         this.nodesNum= nodes.length;
         this.edges=new ArrayList<>();
         this.clazz=nodes[0].getClass();
-        matrix= new HashMap<>();
-        weightMap = new HashMap<>(); // 初始化 Map 对象
+        matrix=new ConcurrentHashMap<>();
+        weightMap =new ConcurrentHashMap<>(); // 初始化 Map 对象
     }
 
     @SuppressWarnings("unchecked")
@@ -103,7 +104,7 @@ public class GraphStructure<T> {
     }
 
     public void setWeightMap(Map<String,Integer>weightMap){
-        this.weightMap=weightMap;
+        this.weightMap=new ConcurrentHashMap<>(weightMap);
     }
 
     // 修改后的 getWeight 方法

@@ -1,14 +1,12 @@
 package org.xiongdwm.graphstructure.connectGraph;
 
 
-import com.sun.scenario.effect.impl.sw.sse.SSEBlend_SRC_OUTPeer;
-import com.sun.xml.internal.ws.util.CompletedFuture;
+
 import org.xiongdwm.graphstructure.exception.WrongMemberException;
 
 import java.lang.reflect.Array;
 import java.util.*;
 import java.util.concurrent.*;
-import java.util.stream.Collectors;
 
 public class GraphSearch<T> {
     private final boolean[] wasVisited;
@@ -212,26 +210,25 @@ public class GraphSearch<T> {
         if (node.equals(theTarget) && currentWeight <= weightLimit) {
             List<T> path = new ArrayList<>(dfsStack);
             Collections.reverse(path);
-            System.out.println(path);
             allPaths.add(path); // add to path 转储路径
         } else {
             List<CompletableFuture<Void>> futures = new ArrayList<>();
             for (T neighbor : G.get(node)) { // adjacency list of node at this term 所有子节点
-                if (!dfsStack.contains(neighbor)) {
-                    int newWeight = currentWeight + G.getWeight(node, neighbor);
-                    if (newWeight <= weightLimit) {
-                        ConcurrentLinkedDeque<T> newPath = new ConcurrentLinkedDeque<>(dfsStack); // copy of path stack创建路径栈的副本
-                        CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
-                            dfs(neighbor, newWeight, currentDepth + 1, newPath);
-                        }, executorService);
-                        futures.add(future);
-                    }
+                if (dfsStack.contains(neighbor))continue;
+                int newWeight = currentWeight + G.getWeight(node, neighbor);
+                if (newWeight <= weightLimit) {
+                    ConcurrentLinkedDeque<T> newPath = new ConcurrentLinkedDeque<>(dfsStack); // copy of path stack创建路径栈的副本
+                    CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
+                        dfs(neighbor, newWeight, currentDepth + 1, newPath);
+                        List<T> s = new ArrayList<>(newPath);
+                        System.out.println(Thread.currentThread().getName() + "================>>" + neighbor + "::" + s);
+                    }, executorService);
+                    futures.add(future);
                 }
             }
             CompletableFuture<Void>allFutures= CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
             return allFutures.thenRun(dfsStack::pop);
         }
-        dfsStack.pop();
         return CompletableFuture.completedFuture(null);
     }
 
@@ -380,16 +377,17 @@ public class GraphSearch<T> {
         }
     }
 
-    public ConcurrentLinkedQueue<List<T>> getAllPaths(boolean sortedOrNot) {
-        if (sortedOrNot) pathOrderByWeight(allPaths);
-        return allPaths;
-    }
-
     public List<Edge<T>> getMinConnection() {
         return minConnection;
     }
 
-    private void pathOrderByWeight(ConcurrentLinkedQueue<List<T>> p) {
+    public List<List<T>> getAllPaths(boolean sortedOrNot) {
+        List<List<T>>paths=new LinkedList<>(allPaths);
+        if (sortedOrNot) pathOrderByWeight(paths);
+        return paths;
+    }
+
+    private void pathOrderByWeight(List<List<T>> p) {
         p.stream().sorted(new Comparator<List<T>>() {
             @Override
             public int compare(List<T> o1, List<T> o2) {

@@ -13,7 +13,6 @@ public class GraphSearch<T> {
     private final T[] edgeTo;
     private final GraphStructure<T> G;
     private T theTarget;
-    //    private final List<List<T>> allPaths = Collections.synchronizedList(new List<>()); // collection of all recorded paths 所有路径集合
     private final ConcurrentLinkedQueue<List<T>> allPaths = new ConcurrentLinkedQueue<>();
     private final Stack<T> path = new Stack<>(); //get a path 一条路径
     private int maximumOutDegree; // to limit the path length, 规定路径出度，也就时最多跳数

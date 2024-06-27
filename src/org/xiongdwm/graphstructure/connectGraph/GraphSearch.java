@@ -19,8 +19,23 @@ public class GraphSearch<T> {
     private T dominator; // dominator 必经节点
     private final List<Edge<T>> minConnection = new ArrayList<>();
     private int weightLimit;
+    private final Object lock=new Object();
     private ExecutorService executorService;
     private T gRoot;
+
+    private static class NodeState<T> {
+        T node;
+        int weight;
+        int depth;
+        ConcurrentLinkedDeque<T> dfsStack;
+
+        NodeState(T node, int weight, int depth, ConcurrentLinkedDeque<T> dfsStack) {
+            this.node = node;
+            this.weight = weight;
+            this.depth = depth;
+            this.dfsStack = dfsStack;
+        }
+    }
 
     public enum Manipulate {
         BREADTH_FIRST("广度优先"),
@@ -29,21 +44,13 @@ public class GraphSearch<T> {
         PRIME("联通分量"),
         NONE_STRUCTURE("无结构");
 
-        private final String text;
-
         Manipulate(String text) {
-            this.text = text;
-        }
-
-        private String getName() {
-            return text;
         }
     }
 
     @SuppressWarnings("unchecked")
     public GraphSearch(GraphStructure<T> G, T root, Manipulate manipulate, T[] nodesAbandon, T target, int maximumOutDegree, T dominator) {
         Class<?> clazz = root.getClass();
-        System.out.println(root);
         this.gRoot = root;
         this.wasVisited = new boolean[G.getNodesNum()];
         this.edgeTo = (T[]) Array.newInstance(clazz, G.getNodesNum());
@@ -83,12 +90,10 @@ public class GraphSearch<T> {
         this.wasVisited = new boolean[G.getNodesNum()];
         this.edgeTo = (T[]) Array.newInstance(clazz, G.getNodesNum());
         this.G = G;
-
         for (int i = 0; i < G.getNodesNum(); ++i) {
             this.wasVisited[i] = false;
             this.edgeTo[i] = null;
         }
-
         switch (manipulate) {
             case BREADTH_FIRST:
                 this.bfs(root);
@@ -130,7 +135,7 @@ public class GraphSearch<T> {
                 bfs(root);
                 break;
             case DEPTH_FIRST:
-                executorService = Executors.newFixedThreadPool(10);
+                executorService = Executors.newCachedThreadPool();
                 break;
             case DJKSTRA:
                 djkstra(root);
@@ -141,6 +146,114 @@ public class GraphSearch<T> {
             case NONE_STRUCTURE:
                 break;
         }
+    }
+
+
+
+    public void startRetrieve() throws ExecutionException, InterruptedException {
+        ConcurrentLinkedDeque<T>initial=new ConcurrentLinkedDeque<>();
+//        CompletableFuture<Void>future= nonRecursiveDFS(gRoot);
+        CompletableFuture<Void>future= dfs(gRoot, 0, 0, initial);
+        future.get();
+        shutdownExecutorService();
+
+    }
+
+    public void shutdownExecutorService() {
+        System.out.println("===================pool shutting down========================");
+        executorService.shutdown(); // Disable new tasks from being submitted
+        try {
+            if (!executorService.awaitTermination(30, TimeUnit.SECONDS)) { // Wait a while for existing tasks to terminate
+                executorService.shutdownNow(); // Cancel currently executing tasks
+                if (!executorService.awaitTermination(30, TimeUnit.SECONDS)) {
+                    System.err.println("ThreadPool did not terminate");
+                }
+            }
+        } catch (InterruptedException ie) {
+            executorService.shutdownNow();
+            Thread.currentThread().interrupt();
+        }
+    }
+
+    private CompletableFuture<Void> dfs(T node, int currentWeight, int currentDepth, ConcurrentLinkedDeque<T>dfsStack) {
+        if (node == null || G.isNodeNotIn(node)) {
+            return CompletableFuture.completedFuture(null);
+        }
+        if (currentDepth > maximumOutDegree) {
+            return CompletableFuture.completedFuture(null);
+        }
+        dfsStack.push(node); // push root
+        if (node.equals(theTarget) && currentWeight <= weightLimit) {
+            List<T> path = new ArrayList<>(dfsStack);
+            Collections.reverse(path);
+            allPaths.add(path); // add to path 转储路径
+        } else {
+            List<CompletableFuture<Void>> futures = Collections.synchronizedList(new ArrayList<>());
+            for (T neighbor : G.get(node)) { // adjacency list of node at this term 所有子节点
+                if (dfsStack.contains(neighbor))continue;
+                int newWeight = currentWeight + G.getWeight(node, neighbor);
+                if (newWeight <= weightLimit) {
+                    ConcurrentLinkedDeque<T> newPath = new ConcurrentLinkedDeque<>(dfsStack); // copy of path stack创建路径栈的副本
+                    CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
+                        System.out.println(Thread.currentThread().getName() + "================>>" + newPath.peek()+"->"+neighbor + "::" + newPath);
+                        dfs(neighbor, newWeight, currentDepth + 1, newPath);
+                    }, executorService);
+                    futures.add(future);
+                }
+            }
+            CompletableFuture<Void>allFutures= CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
+            return allFutures.thenRun(dfsStack::pop);
+        }
+        return CompletableFuture.completedFuture(null);
+    }
+
+
+    private CompletableFuture<Void> nonRecursiveDFS(T root) {
+        Stack<NodeState<T>> stack = new Stack<>();
+        stack.push(new NodeState<>(root, 0, 0, new ConcurrentLinkedDeque<>()));
+        CompletableFuture<Void> rootFuture = CompletableFuture.completedFuture(null);
+        while (!stack.isEmpty()) {
+            NodeState<T> currentState = stack.pop();
+            T currentNode = currentState.node;
+            int currentWeight = currentState.weight;
+            int currentDepth = currentState.depth;
+            ConcurrentLinkedDeque<T> dfsStack = currentState.dfsStack;
+
+            if (currentNode == null || G.isNodeNotIn(currentNode)) {
+                continue;
+            }
+            if (currentDepth > maximumOutDegree) {
+                continue;
+            }
+            dfsStack.push(currentNode);
+            if (currentNode.equals(theTarget) && currentWeight <= weightLimit) {
+                List<T> path = new ArrayList<>(dfsStack);
+                Collections.reverse(path);
+                System.out.println(path);
+                allPaths.add(path);
+            } else {
+                List<CompletableFuture<Void>> futures = Collections.synchronizedList(new ArrayList<>());
+                for (T neighbor : G.get(currentNode)) {
+                    if (dfsStack.contains(neighbor)) continue;
+                    int newWeight = currentWeight + G.getWeight(currentNode, neighbor);
+                    if (newWeight <= weightLimit) {
+                        ConcurrentLinkedDeque<T> newPath = new ConcurrentLinkedDeque<>(dfsStack);
+                        CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
+                            System.out.println(Thread.currentThread().getName() + "================>>" + newPath.peek()+"->"+neighbor + "::" + newPath);
+                        }, executorService).thenRun(() -> {
+                            stack.push(new NodeState<>(neighbor, newWeight, currentDepth + 1, newPath));
+                        });
+                        synchronized (lock){
+                            futures.add(future);
+                        }
+
+                    }
+                }
+                CompletableFuture<Void> allFutures = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
+                rootFuture = rootFuture.thenComposeAsync(v -> allFutures.thenRun(dfsStack::pop), executorService);
+            }
+        }
+        return rootFuture;
     }
 
     private void dfsV0(T root) {
@@ -175,62 +288,6 @@ public class GraphSearch<T> {
             }
         }
     }
-
-    public void startRetrieve() throws ExecutionException, InterruptedException {
-        ConcurrentLinkedDeque<T>initial=new ConcurrentLinkedDeque<>();
-        CompletableFuture<Void>future= dfs(gRoot, 0, 0, initial);
-        future.get();
-        shutdownExecutorService();
-    }
-
-    private void shutdownExecutorService() {
-        executorService.shutdown(); // Disable new tasks from being submitted
-        try {
-            if (!executorService.awaitTermination(60, TimeUnit.SECONDS)) { // Wait a while for existing tasks to terminate
-                executorService.shutdownNow(); // Cancel currently executing tasks
-                if (!executorService.awaitTermination(60, TimeUnit.SECONDS)) {
-                    System.err.println("ThreadPool did not terminate");
-                }
-            }
-        } catch (InterruptedException ie) {
-            executorService.shutdownNow();
-            Thread.currentThread().interrupt();
-        }
-    }
-
-    private CompletableFuture<Void> dfs(T node, int currentWeight, int currentDepth, ConcurrentLinkedDeque<T>dfsStack) {
-        if (node == null || G.isNodeNotIn(node)) {
-            return CompletableFuture.completedFuture(null);
-        }
-        if (currentDepth > maximumOutDegree) {
-            return CompletableFuture.completedFuture(null);
-        }
-        dfsStack.push(node); // push root
-        if (node.equals(theTarget) && currentWeight <= weightLimit) {
-            List<T> path = new ArrayList<>(dfsStack);
-            Collections.reverse(path);
-            allPaths.add(path); // add to path 转储路径
-        } else {
-            List<CompletableFuture<Void>> futures = new ArrayList<>();
-            for (T neighbor : G.get(node)) { // adjacency list of node at this term 所有子节点
-                if (dfsStack.contains(neighbor))continue;
-                int newWeight = currentWeight + G.getWeight(node, neighbor);
-                if (newWeight <= weightLimit) {
-                    ConcurrentLinkedDeque<T> newPath = new ConcurrentLinkedDeque<>(dfsStack); // copy of path stack创建路径栈的副本
-                    CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
-                        dfs(neighbor, newWeight, currentDepth + 1, newPath);
-                        List<T> s = new ArrayList<>(newPath);
-                        System.out.println(Thread.currentThread().getName() + "================>>" + neighbor + "::" + s);
-                    }, executorService);
-                    futures.add(future);
-                }
-            }
-            CompletableFuture<Void>allFutures= CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
-            return allFutures.thenRun(dfsStack::pop);
-        }
-        return CompletableFuture.completedFuture(null);
-    }
-
 
     private void dfsV1(T root, int weight) {
         if (G.isNodeNotIn(root)) return;
@@ -308,7 +365,6 @@ public class GraphSearch<T> {
     }
 
     private void prime(T root) {
-        //int pathCount=0;
         List<T> targets = G.get(root);
         int outDegree = targets.size();
         if (outDegree < 2) return;
@@ -326,7 +382,6 @@ public class GraphSearch<T> {
             if (record.contains(target)) continue;
             prime(target);
         }
-
     }
 
 
@@ -357,12 +412,6 @@ public class GraphSearch<T> {
         return path;
     }
 
-    public List<T[]> printAllEdge(T target) {
-        List<T[]> rs = new ArrayList<>();
-        T[] roots = G.getNodes();
-        return rs;
-    }
-
     public void showPath(T target) {
         assert hasPathTo(target);
         Vector<T> vector = pathTo(target);
@@ -387,7 +436,7 @@ public class GraphSearch<T> {
     }
 
     private void pathOrderByWeight(List<List<T>> p) {
-        p.stream().sorted(new Comparator<List<T>>() {
+        p.sort(new Comparator<List<T>>() {
             @Override
             public int compare(List<T> o1, List<T> o2) {
                 int weight1 = 0;

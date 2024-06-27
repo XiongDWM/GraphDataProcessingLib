@@ -35,6 +35,7 @@ public class Test {
 
         System.out.println(dfs.getAllPaths(true));
 
+//        dfs.shutdownExecutorService();
         Map<String,Integer>tesMap=new HashMap<>();
         tesMap.put("1-b",1);
         tesMap.put("b-1",0);

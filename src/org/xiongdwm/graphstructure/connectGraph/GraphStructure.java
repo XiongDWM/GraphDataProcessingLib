@@ -13,6 +13,7 @@ import java.util.stream.Collectors;
  * @overall-description form data into a graph structure 图结构
  * @ver-description store weight x保存边权值
  */
+
 public class GraphStructure<T> {
     private int nodesNum;
     private T[] nodes;

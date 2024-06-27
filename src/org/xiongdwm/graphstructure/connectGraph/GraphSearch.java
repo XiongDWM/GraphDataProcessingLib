@@ -44,7 +44,10 @@ public class GraphSearch<T> {
         PRIME("联通分量"),
         NONE_STRUCTURE("无结构");
 
+        private final String text;
+
         Manipulate(String text) {
+            this.text = text;
         }
     }
 
@@ -187,8 +190,9 @@ public class GraphSearch<T> {
             List<T> path = new ArrayList<>(dfsStack);
             Collections.reverse(path);
             allPaths.add(path); // add to path 转储路径
+            return CompletableFuture.completedFuture(null);
         } else {
-            List<CompletableFuture<Void>> futures = Collections.synchronizedList(new ArrayList<>());
+            List<CompletableFuture<Void>> futures = new ArrayList<>();
             for (T neighbor : G.get(node)) { // adjacency list of node at this term 所有子节点
                 if (dfsStack.contains(neighbor))continue;
                 int newWeight = currentWeight + G.getWeight(node, neighbor);
@@ -204,7 +208,6 @@ public class GraphSearch<T> {
             CompletableFuture<Void>allFutures= CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
             return allFutures.thenRun(dfsStack::pop);
         }
-        return CompletableFuture.completedFuture(null);
     }
 
 

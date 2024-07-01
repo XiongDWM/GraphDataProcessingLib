@@ -22,6 +22,7 @@ public class GraphSearch<T> {
     private final Object lock=new Object();
     private ExecutorService executorService;
     private T gRoot;
+    private final List<CompletableFuture<Void>> allFutures = Collections.synchronizedList(new ArrayList<>());
 
     private static class NodeState<T> {
         T node;
@@ -155,11 +156,14 @@ public class GraphSearch<T> {
 
     public void startRetrieve() throws ExecutionException, InterruptedException {
         ConcurrentLinkedDeque<T>initial=new ConcurrentLinkedDeque<>();
-//        CompletableFuture<Void>future= nonRecursiveDFS(gRoot);
-        CompletableFuture<Void>future= dfs(gRoot, 0, 0, initial);
-        future.get();
+        dfs(gRoot, 0, 0, initial);
         shutdownExecutorService();
 
+    }
+    public void startRetrieveNonRecursive() throws ExecutionException, InterruptedException {
+        nonRecursiveDFS(gRoot);
+        CompletableFuture.allOf(allFutures.toArray(new CompletableFuture[0])).get();
+        shutdownExecutorService();
     }
 
     public void shutdownExecutorService() {
@@ -179,12 +183,9 @@ public class GraphSearch<T> {
     }
 
     private CompletableFuture<Void> dfs(T node, int currentWeight, int currentDepth, ConcurrentLinkedDeque<T>dfsStack) {
-        if (node == null || G.isNodeNotIn(node)) {
-            return CompletableFuture.completedFuture(null);
-        }
-        if (currentDepth > maximumOutDegree) {
-            return CompletableFuture.completedFuture(null);
-        }
+        if (node == null || G.isNodeNotIn(node)) return CompletableFuture.completedFuture(null);
+        if (currentDepth > maximumOutDegree) return CompletableFuture.completedFuture(null);
+
         dfsStack.push(node); // push root
         if (node.equals(theTarget) && currentWeight <= weightLimit) {
             List<T> path = new ArrayList<>(dfsStack);
@@ -203,16 +204,17 @@ public class GraphSearch<T> {
                         dfs(neighbor, newWeight, currentDepth + 1, newPath);
                     }, executorService);
                     futures.add(future);
+                    allFutures.add(future);
                 }
             }
-            CompletableFuture<Void>allFutures= CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
-            return allFutures.thenRun(dfsStack::pop);
+            CompletableFuture<Void>allFuturesForNode= CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
+            return allFuturesForNode.thenRun(dfsStack::pop);
         }
     }
 
 
     private CompletableFuture<Void> nonRecursiveDFS(T root) {
-        Stack<NodeState<T>> stack = new Stack<>();
+        Stack<NodeState<T>> stack = new Stack<>(); // param stack
         stack.push(new NodeState<>(root, 0, 0, new ConcurrentLinkedDeque<>()));
         CompletableFuture<Void> rootFuture = CompletableFuture.completedFuture(null);
         while (!stack.isEmpty()) {
@@ -235,7 +237,7 @@ public class GraphSearch<T> {
                 System.out.println(path);
                 allPaths.add(path);
             } else {
-                List<CompletableFuture<Void>> futures = Collections.synchronizedList(new ArrayList<>());
+                List<CompletableFuture<Void>> futures = new ArrayList<>();
                 for (T neighbor : G.get(currentNode)) {
                     if (dfsStack.contains(neighbor)) continue;
                     int newWeight = currentWeight + G.getWeight(currentNode, neighbor);
@@ -246,15 +248,20 @@ public class GraphSearch<T> {
                         }, executorService).thenRun(() -> {
                             stack.push(new NodeState<>(neighbor, newWeight, currentDepth + 1, newPath));
                         });
+                        futures.add(future);
                         synchronized (lock){
-                            futures.add(future);
+                            allFutures.add(future);
                         }
-
                     }
                 }
-                CompletableFuture<Void> allFutures = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
-                rootFuture = rootFuture.thenComposeAsync(v -> allFutures.thenRun(dfsStack::pop), executorService);
+                CompletableFuture<Void> allFuturesForNode = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
+                try {
+                    allFuturesForNode.get();  // Wait for all futures to complete before proceeding to the next node
+                } catch (InterruptedException | ExecutionException e) {
+                    e.printStackTrace();
+                }
             }
+            dfsStack.pop();
         }
         return rootFuture;
     }

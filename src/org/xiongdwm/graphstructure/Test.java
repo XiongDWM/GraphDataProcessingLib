@@ -31,7 +31,7 @@ public class Test {
         graphStructure.make(5L, Arrays.asList(node5),new int []{0,5});
         graphStructure.init();
         GraphSearch<Long> dfs = new GraphSearch<Long>(graphStructure, 1L,GraphSearch.Manipulate.DEPTH_FIRST,null , 3L, 7, null,100);
-        dfs.startRetrieve();
+        dfs.startRetrieveNonRecursive();
 
         System.out.println(dfs.getAllPaths(true));
 

@@ -156,31 +156,31 @@ public class GraphSearch<T> {
 
     public void startRetrieve() throws ExecutionException, InterruptedException {
         ConcurrentLinkedDeque<T>initial=new ConcurrentLinkedDeque<>();
-        dfs(gRoot, 0, 0, initial);
-        CompletableFuture.allOf(allFutures.toArray(new CompletableFuture[0])).get();
+        dfs(gRoot, 0, 0, initial).join();
+        CompletableFuture.allOf(allFutures.toArray(new CompletableFuture[0])).join();
         shutdownExecutorService();
 
     }
     public void startRetrieveNonRecursive() throws ExecutionException, InterruptedException {
-        nonRecursiveDFS(gRoot);
-        CompletableFuture.allOf(allFutures.toArray(new CompletableFuture[0])).get();
+        nonRecursiveDFS(gRoot).join();
+        CompletableFuture.allOf(allFutures.toArray(new CompletableFuture[0])).join();
         shutdownExecutorService();
     }
 
     public void shutdownExecutorService() {
         System.out.println("===================pool shutting down========================");
         executorService.shutdown(); // Disable new tasks from being submitted
-        try {
-            if (!executorService.awaitTermination(30, TimeUnit.SECONDS)) { // Wait a while for existing tasks to terminate
-                executorService.shutdownNow(); // Cancel currently executing tasks
-                if (!executorService.awaitTermination(30, TimeUnit.SECONDS)) {
-                    System.err.println("ThreadPool did not terminate");
-                }
-            }
-        } catch (InterruptedException ie) {
-            executorService.shutdownNow();
-            Thread.currentThread().interrupt();
-        }
+//        try {
+//            if (!executorService.awaitTermination(30, TimeUnit.SECONDS)) { // Wait a while for existing tasks to terminate
+//                executorService.shutdownNow(); // Cancel currently executing tasks
+//                if (!executorService.awaitTermination(30, TimeUnit.SECONDS)) {
+//                    System.err.println("ThreadPool did not terminate");
+//                }
+//            }
+//        } catch (InterruptedException ie) {
+//            executorService.shutdownNow();
+//            Thread.currentThread().interrupt();
+//        }
     }
 
     private CompletableFuture<Void> dfs(T node, int currentWeight, int currentDepth, ConcurrentLinkedDeque<T>dfsStack) {
@@ -191,9 +191,8 @@ public class GraphSearch<T> {
         if (node.equals(theTarget) && currentWeight <= weightLimit) {
             List<T> path = new ArrayList<>(dfsStack);
             Collections.reverse(path);
-            synchronized (lock){
-                allPaths.add(path); // add to path 转储路径
-            }
+            allPaths.add(path); // add to path 转储路径
+
             return CompletableFuture.completedFuture(null);
         } else {
             List<CompletableFuture<Void>> futures = new ArrayList<>();
@@ -202,14 +201,13 @@ public class GraphSearch<T> {
                 int newWeight = currentWeight + G.getWeight(node, neighbor);
                 if (newWeight <= weightLimit) {
                     ConcurrentLinkedDeque<T> newPath = new ConcurrentLinkedDeque<>(dfsStack); // copy of path stack创建路径栈的副本
-                    CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
+                    CompletableFuture<Void> future = CompletableFuture.supplyAsync(() -> {
                         System.out.println(Thread.currentThread().getName() + "================>>" + newPath.peek()+"->"+neighbor + "::" + newPath);
                         dfs(neighbor, newWeight, currentDepth + 1, newPath);
+                        return null;
                     }, executorService);
                     futures.add(future);
-                    synchronized (lock){
-                        allFutures.add(future);
-                    }
+                    allFutures.add(future);
                 }
             }
             CompletableFuture<Void>allFuturesForNode= CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
@@ -229,12 +227,10 @@ public class GraphSearch<T> {
             int currentDepth = currentState.depth;
             ConcurrentLinkedDeque<T> dfsStack = currentState.dfsStack;
 
-            if (currentNode == null || G.isNodeNotIn(currentNode)) {
-                continue;
-            }
-            if (currentDepth > maximumOutDegree) {
-                continue;
-            }
+            if (currentNode == null || G.isNodeNotIn(currentNode)) continue;
+
+            if (currentDepth > maximumOutDegree) continue;
+
             dfsStack.push(currentNode);
             if (currentNode.equals(theTarget) && currentWeight <= weightLimit) {
                 List<T> path = new ArrayList<>(dfsStack);

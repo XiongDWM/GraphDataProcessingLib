@@ -73,7 +73,7 @@ public class GraphStructure<T> {
         return !Arrays.asList(this.nodes).contains(obj);
     }
 
-    public List<T> get(T obj){
+    public synchronized List<T> get(T obj){
         if(isNodeNotIn(obj)) return Collections.emptyList();
         return matrix.get(obj);
     }

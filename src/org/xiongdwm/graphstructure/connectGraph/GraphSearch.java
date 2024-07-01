@@ -139,8 +139,7 @@ public class GraphSearch<T> {
                 bfs(root);
                 break;
             case DEPTH_FIRST:
-//                executorService = Executors.newFixedThreadPool(20);
-                dfsV1(root, 0);
+                executorService = Executors.newFixedThreadPool(20);
                 break;
             case DJKSTRA:
                 djkstra(root);
@@ -205,7 +204,7 @@ public class GraphSearch<T> {
                     ConcurrentLinkedDeque<T> newPath = new ConcurrentLinkedDeque<>(dfsStack); // copy of path stack创建路径栈的副本
                     CompletableFuture<Void> future = CompletableFuture.supplyAsync(() -> {
                         System.out.println(Thread.currentThread().getName() + "================>>" + newPath.peek()+"->"+neighbor + "::" + newPath);
-                        dfs(neighbor, newWeight, currentDepth + 1, newPath);
+                        dfs(neighbor, newWeight, currentDepth + 1, newPath).join();
                         return null;
                     }, executorService);
                     futures.add(future);

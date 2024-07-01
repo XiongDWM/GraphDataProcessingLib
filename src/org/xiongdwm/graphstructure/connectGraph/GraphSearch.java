@@ -139,7 +139,8 @@ public class GraphSearch<T> {
                 bfs(root);
                 break;
             case DEPTH_FIRST:
-                executorService = Executors.newFixedThreadPool(20);
+//                executorService = Executors.newFixedThreadPool(20);
+                dfsV1(root, 0);
                 break;
             case DJKSTRA:
                 djkstra(root);

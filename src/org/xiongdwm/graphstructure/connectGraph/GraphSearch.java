@@ -157,6 +157,7 @@ public class GraphSearch<T> {
     public void startRetrieve() throws ExecutionException, InterruptedException {
         ConcurrentLinkedDeque<T>initial=new ConcurrentLinkedDeque<>();
         dfs(gRoot, 0, 0, initial);
+        CompletableFuture.allOf(allFutures.toArray(new CompletableFuture[0])).get();
         shutdownExecutorService();
 
     }

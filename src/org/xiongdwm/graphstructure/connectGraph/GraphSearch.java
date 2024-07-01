@@ -139,7 +139,7 @@ public class GraphSearch<T> {
                 bfs(root);
                 break;
             case DEPTH_FIRST:
-                executorService = Executors.newCachedThreadPool();
+                executorService = Executors.newFixedThreadPool(20);
                 break;
             case DJKSTRA:
                 djkstra(root);
@@ -185,13 +185,15 @@ public class GraphSearch<T> {
 
     private CompletableFuture<Void> dfs(T node, int currentWeight, int currentDepth, ConcurrentLinkedDeque<T>dfsStack) {
         if (node == null || G.isNodeNotIn(node)) return CompletableFuture.completedFuture(null);
-        if (currentDepth > maximumOutDegree) return CompletableFuture.completedFuture(null);
+        if (currentDepth > maximumOutDegree&&!dfsStack.contains(theTarget)) return CompletableFuture.completedFuture(null);
 
         dfsStack.push(node); // push root
         if (node.equals(theTarget) && currentWeight <= weightLimit) {
             List<T> path = new ArrayList<>(dfsStack);
             Collections.reverse(path);
-            allPaths.add(path); // add to path 转储路径
+            synchronized (lock){
+                allPaths.add(path); // add to path 转储路径
+            }
             return CompletableFuture.completedFuture(null);
         } else {
             List<CompletableFuture<Void>> futures = new ArrayList<>();
@@ -205,7 +207,9 @@ public class GraphSearch<T> {
                         dfs(neighbor, newWeight, currentDepth + 1, newPath);
                     }, executorService);
                     futures.add(future);
-                    allFutures.add(future);
+                    synchronized (lock){
+                        allFutures.add(future);
+                    }
                 }
             }
             CompletableFuture<Void>allFuturesForNode= CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));

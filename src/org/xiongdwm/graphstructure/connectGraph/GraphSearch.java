@@ -154,11 +154,12 @@ public class GraphSearch<T> {
 
 
 
-    public void startRetrieve() throws ExecutionException, InterruptedException {
+    public CompletableFuture<Void> startRetrieve() throws ExecutionException, InterruptedException {
         ConcurrentLinkedDeque<T>initial=new ConcurrentLinkedDeque<>();
-        dfs(gRoot, 0, 0, initial).join();
-        CompletableFuture.allOf(allFutures.toArray(new CompletableFuture[0])).join();
+        CompletableFuture<Void> allTasks = dfs(gRoot, 0, 0, initial);
+        allTasks.thenRun(() -> CompletableFuture.allOf(allFutures.toArray(new CompletableFuture[0]))).join();
         shutdownExecutorService();
+        return allTasks;
 
     }
     public void startRetrieveNonRecursive() throws ExecutionException, InterruptedException {
@@ -443,7 +444,7 @@ public class GraphSearch<T> {
     public List<List<T>> getAllPaths(boolean sortedOrNot) {
         List<List<T>>paths=new LinkedList<>(allPaths);
         if (sortedOrNot) pathOrderByWeight(paths);
-        return paths;
+        return Collections.unmodifiableList(paths);
     }
 
     private void pathOrderByWeight(List<List<T>> p) {

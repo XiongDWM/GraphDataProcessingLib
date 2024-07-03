@@ -20,9 +20,9 @@ public class GraphSearch<T> {
     private final List<Edge<T>> minConnection = new ArrayList<>();
     private int weightLimit;
     private final Object lock=new Object();
-    private ExecutorService executorService;
+    private ForkJoinPool forkJoinPool;
     private T gRoot;
-    private final List<CompletableFuture<Void>> allFutures = Collections.synchronizedList(new ArrayList<>());
+//    private final List<CompletableFuture<Void>> allFutures = Collections.synchronizedList(new ArrayList<>());
 
     private static class NodeState<T> {
         T node;
@@ -139,7 +139,7 @@ public class GraphSearch<T> {
                 bfs(root);
                 break;
             case DEPTH_FIRST:
-                executorService = Executors.newFixedThreadPool(20);
+                forkJoinPool=new ForkJoinPool(32);
                 break;
             case DJKSTRA:
                 djkstra(root);
@@ -152,36 +152,27 @@ public class GraphSearch<T> {
         }
     }
 
+    public CompletableFuture<Void> startRetrieveNonRecursive() throws ExecutionException, InterruptedException {
+        CompletableFuture<Void> allTasks = nonRecursiveDFS(gRoot);
+//        CompletableFuture<Void> allCompletableFuture = CompletableFuture.allOf(allFutures.toArray(new CompletableFuture[0]));
+        allTasks.thenRun(this::shutdownExecutorService).join(); // wait for all futures
+        return allTasks;
 
+    }
 
     public CompletableFuture<Void> startRetrieve() throws ExecutionException, InterruptedException {
         ConcurrentLinkedDeque<T>initial=new ConcurrentLinkedDeque<>();
         CompletableFuture<Void> allTasks = dfs(gRoot, 0, 0, initial);
-        allTasks.thenRun(() -> CompletableFuture.allOf(allFutures.toArray(new CompletableFuture[0]))).join();
-        shutdownExecutorService();
+//        CompletableFuture<Void> allCompletableFuture = CompletableFuture.allOf(allFutures.toArray(new CompletableFuture[0]));
+        allTasks.thenRun(this::shutdownExecutorService).join(); // wait for all futures
         return allTasks;
 
-    }
-    public void startRetrieveNonRecursive() throws ExecutionException, InterruptedException {
-        nonRecursiveDFS(gRoot).join();
-        CompletableFuture.allOf(allFutures.toArray(new CompletableFuture[0])).join();
-        shutdownExecutorService();
     }
 
     public void shutdownExecutorService() {
         System.out.println("===================pool shutting down========================");
-        executorService.shutdown(); // Disable new tasks from being submitted
-//        try {
-//            if (!executorService.awaitTermination(30, TimeUnit.SECONDS)) { // Wait a while for existing tasks to terminate
-//                executorService.shutdownNow(); // Cancel currently executing tasks
-//                if (!executorService.awaitTermination(30, TimeUnit.SECONDS)) {
-//                    System.err.println("ThreadPool did not terminate");
-//                }
-//            }
-//        } catch (InterruptedException ie) {
-//            executorService.shutdownNow();
-//            Thread.currentThread().interrupt();
-//        }
+        forkJoinPool.shutdown(); // Disable new tasks from being submitted
+        forkJoinPool=null;
     }
 
     private CompletableFuture<Void> dfs(T node, int currentWeight, int currentDepth, ConcurrentLinkedDeque<T>dfsStack) {
@@ -193,7 +184,7 @@ public class GraphSearch<T> {
             List<T> path = new ArrayList<>(dfsStack);
             Collections.reverse(path);
             allPaths.add(path); // add to path 转储路径
-
+            System.out.println(path);
             return CompletableFuture.completedFuture(null);
         } else {
             List<CompletableFuture<Void>> futures = new ArrayList<>();
@@ -202,13 +193,12 @@ public class GraphSearch<T> {
                 int newWeight = currentWeight + G.getWeight(node, neighbor);
                 if (newWeight <= weightLimit) {
                     ConcurrentLinkedDeque<T> newPath = new ConcurrentLinkedDeque<>(dfsStack); // copy of path stack创建路径栈的副本
-                    CompletableFuture<Void> future = CompletableFuture.supplyAsync(() -> {
-                        System.out.println(Thread.currentThread().getName() + "================>>" + newPath.peek()+"->"+neighbor + "::" + newPath);
+                    CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
+//                        System.out.println(Thread.currentThread().getName() + "================>>" + newPath.peek()+"->"+neighbor + "::" + newPath);
                         dfs(neighbor, newWeight, currentDepth + 1, newPath).join();
-                        return null;
-                    }, executorService);
+                    }, forkJoinPool);
                     futures.add(future);
-                    allFutures.add(future);
+//                    allFutures.add(future);
                 }
             }
             CompletableFuture<Void>allFuturesForNode= CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
@@ -247,12 +237,12 @@ public class GraphSearch<T> {
                         ConcurrentLinkedDeque<T> newPath = new ConcurrentLinkedDeque<>(dfsStack);
                         CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
                             System.out.println(Thread.currentThread().getName() + "================>>" + newPath.peek()+"->"+neighbor + "::" + newPath);
-                        }, executorService).thenRun(() -> {
+                        }, forkJoinPool).thenRun(() -> {
                             stack.push(new NodeState<>(neighbor, newWeight, currentDepth + 1, newPath));
                         });
                         futures.add(future);
                         synchronized (lock){
-                            allFutures.add(future);
+//                            allFutures.add(future);
                         }
                     }
                 }
@@ -463,4 +453,16 @@ public class GraphSearch<T> {
             }
         });
     }
+
+    //        try {
+//            if (!executorService.awaitTermination(30, TimeUnit.SECONDS)) { // Wait a while for existing tasks to terminate
+//                executorService.shutdownNow(); // Cancel currently executing tasks
+//                if (!executorService.awaitTermination(30, TimeUnit.SECONDS)) {
+//                    System.err.println("ThreadPool did not terminate");
+//                }
+//            }
+//        } catch (InterruptedException ie) {
+//            executorService.shutdownNow();
+//            Thread.currentThread().interrupt();
+//        }
 }

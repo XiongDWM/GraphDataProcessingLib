@@ -8,6 +8,7 @@ import org.xiongdwm.graphstructure.utils.geometry.GeoAbstract;
 
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -31,7 +32,12 @@ public class Test {
         graphStructure.make(5L, Arrays.asList(node5),new int []{0,5});
         graphStructure.init();
         GraphSearch<Long> dfs = new GraphSearch<Long>(graphStructure, 1L,GraphSearch.Manipulate.DEPTH_FIRST,null , 3L, 7, null,100);
-         dfs.startRetrieve().join();
+        CompletableFuture<Void>c=dfs.startRetrieve();
+        c.join();
+        System.out.println(c.isDone());
+        System.out.println(c.getNumberOfDependents());
+        CompletableFuture<Void>c1=dfs.startRetrieveNonRecursive();
+//        System.out.println(dfs.startRetrieve().isDone());
 
         System.out.println(dfs.getAllPaths(true));
 

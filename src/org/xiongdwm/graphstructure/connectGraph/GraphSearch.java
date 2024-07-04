@@ -163,7 +163,7 @@ public class GraphSearch<T> {
 
     public CompletableFuture<Void> startRetrieve() throws ExecutionException, InterruptedException {
         ConcurrentLinkedDeque<T>initial=new ConcurrentLinkedDeque<>();
-        CompletableFuture<Void> allTasks = dfs(gRoot, 0, 0, initial);
+        CompletableFuture<Void> allTasks = dfs(gRoot, 0, initial);
 //        CompletableFuture<Void> allCompletableFuture = CompletableFuture.allOf(allFutures.toArray(new CompletableFuture[0]));
         allTasks.thenRun(this::shutdownExecutorService).join(); // wait for all futures
         return allTasks;
@@ -180,13 +180,13 @@ public class GraphSearch<T> {
         allPaths=null;
     }
 
-    private CompletableFuture<Void> dfs(T node, int currentWeight, int currentDepth, ConcurrentLinkedDeque<T>dfsStack) {
+    private CompletableFuture<Void> dfs(T node, int currentWeight, ConcurrentLinkedDeque<T>dfsStack) {
         if (node == null || G.isNodeNotIn(node)) return CompletableFuture.completedFuture(null);
-        if (currentDepth > maximumRouteCount &&!dfsStack.contains(theTarget)) return CompletableFuture.completedFuture(null);
-
+//        if (currentDepth > maximumRouteCount &&!dfsStack.contains(theTarget)) return CompletableFuture.completedFuture(null);
+        if (currentWeight > weightLimit &&!dfsStack.contains(theTarget)) return CompletableFuture.completedFuture(null);
         dfsStack.push(node); // push root
         if (node.equals(theTarget) && currentWeight <= weightLimit) {
-            if(allPaths.size()>=maximumRouteCount)return CompletableFuture.completedFuture(null);
+            if (allPaths.size() >=maximumRouteCount)return CompletableFuture.completedFuture(null);
             List<T> path = new ArrayList<>(dfsStack);
             Collections.reverse(path);
             allPaths.add(path);// add to path 转储路径
@@ -200,8 +200,8 @@ public class GraphSearch<T> {
                 if (newWeight <= weightLimit) {
                     ConcurrentLinkedDeque<T> newPath = new ConcurrentLinkedDeque<>(dfsStack); // copy of path stack创建路径栈的副本
                     CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
-//                        System.out.println(Thread.currentThread().getName() + "================>>" + newPath.peek()+"->"+neighbor + "::" + newPath);
-                        dfs(neighbor, newWeight, currentDepth + 1, newPath).join();
+                        System.out.println(Thread.currentThread().getName() + "================>>" + newPath.peek()+"->"+neighbor + "::" + newPath);
+                        dfs(neighbor, newWeight, newPath).join();
                     }, forkJoinPool);
                     futures.add(future);
 //                    allFutures.add(future);

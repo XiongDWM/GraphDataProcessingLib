@@ -36,8 +36,9 @@ public class Test {
         c.join();
         System.out.println(c.isDone());
         System.out.println(c.getNumberOfDependents());
-        CompletableFuture<Void>c1=dfs.startRetrieveNonRecursive();
-        System.out.println(dfs.startRetrieve().isDone());
+        System.out.println(dfs.getAllPaths(true));
+//        CompletableFuture<Void>c1=dfs.startRetrieveNonRecursive();
+//        System.out.println(dfs.startRetrieve().isDone());
 
 //        dfs.shutdownExecutorService();
         Map<String,Integer>tesMap=new HashMap<>();

@@ -31,15 +31,13 @@ public class Test {
         graphStructure.make(4L, Arrays.asList(node4), new int []{5,5});
         graphStructure.make(5L, Arrays.asList(node5),new int []{0,5});
         graphStructure.init();
-        GraphSearch<Long> dfs = new GraphSearch<Long>(graphStructure, 1L,GraphSearch.Manipulate.DEPTH_FIRST,null , 3L, 7, null,100);
+        GraphSearch<Long> dfs = new GraphSearch<Long>(graphStructure, 1L,GraphSearch.Manipulate.DEPTH_FIRST,null , 3L, 2, null,100);
         CompletableFuture<Void>c=dfs.startRetrieve();
         c.join();
         System.out.println(c.isDone());
         System.out.println(c.getNumberOfDependents());
         CompletableFuture<Void>c1=dfs.startRetrieveNonRecursive();
-//        System.out.println(dfs.startRetrieve().isDone());
-
-        System.out.println(dfs.getAllPaths(true));
+        System.out.println(dfs.startRetrieve().isDone());
 
 //        dfs.shutdownExecutorService();
         Map<String,Integer>tesMap=new HashMap<>();

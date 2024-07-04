@@ -13,9 +13,10 @@ public class GraphSearch<T> {
     private final T[] edgeTo;
     private final GraphStructure<T> G;
     private T theTarget;
-    private final ConcurrentLinkedQueue<List<T>> allPaths = new ConcurrentLinkedQueue<>();
+//    private final ConcurrentLinkedQueue<List<T>> allPaths = new ConcurrentLinkedQueue<>();
+    Set<List<T>> allPaths = Collections.synchronizedSet(new HashSet<>());
     private final Stack<T> path = new Stack<>(); //get a path 一条路径
-    private int maximumOutDegree; // to limit the path length, 规定路径出度，也就时最多跳数
+    private int maximumRouteCount; // to limit the path length, 规定路径出度，也就时最多跳数
     private T dominator; // dominator 必经节点
     private final List<Edge<T>> minConnection = new ArrayList<>();
     private int weightLimit;
@@ -53,12 +54,12 @@ public class GraphSearch<T> {
     }
 
     @SuppressWarnings("unchecked")
-    public GraphSearch(GraphStructure<T> G, T root, Manipulate manipulate, T[] nodesAbandon, T target, int maximumOutDegree, T dominator) {
+    public GraphSearch(GraphStructure<T> G, T root, Manipulate manipulate, T[] nodesAbandon, T target, int maximumRouteCount, T dominator) {
         Class<?> clazz = root.getClass();
         this.gRoot = root;
         this.wasVisited = new boolean[G.getNodesNum()];
         this.edgeTo = (T[]) Array.newInstance(clazz, G.getNodesNum());
-        this.maximumOutDegree = maximumOutDegree;
+        this.maximumRouteCount = maximumRouteCount;
         this.dominator = dominator;
         theTarget = target;
         this.G = G;
@@ -115,14 +116,14 @@ public class GraphSearch<T> {
     }
 
     @SuppressWarnings("unchecked")
-    public GraphSearch(GraphStructure<T> G, T root, Manipulate manipulate, T[] nodesAbandon, T target, int maximumOutDegree, T dominator, int weightLimit) {
+    public GraphSearch(GraphStructure<T> G, T root, Manipulate manipulate, T[] nodesAbandon, T target, int maximumRouteCount, T dominator, int weightLimit) {
         Class<?> clazz = root.getClass();
         this.gRoot = root;
         this.wasVisited = new boolean[G.getNodesNum()];
         this.edgeTo = (T[]) Array.newInstance(clazz, G.getNodesNum());
         this.dominator = dominator;
         theTarget = target;
-        this.maximumOutDegree = maximumOutDegree;
+        this.maximumRouteCount = maximumRouteCount;
         this.G = G;
         this.weightLimit = weightLimit;
         for (int i = 0; i < G.getNodesNum(); i++) {
@@ -172,18 +173,23 @@ public class GraphSearch<T> {
     public void shutdownExecutorService() {
         System.out.println("===================pool shutting down========================");
         forkJoinPool.shutdown(); // Disable new tasks from being submitted
+
+    }
+    public void clear(){
         forkJoinPool=null;
+        allPaths=null;
     }
 
     private CompletableFuture<Void> dfs(T node, int currentWeight, int currentDepth, ConcurrentLinkedDeque<T>dfsStack) {
         if (node == null || G.isNodeNotIn(node)) return CompletableFuture.completedFuture(null);
-        if (currentDepth > maximumOutDegree&&!dfsStack.contains(theTarget)) return CompletableFuture.completedFuture(null);
+        if (currentDepth > maximumRouteCount &&!dfsStack.contains(theTarget)) return CompletableFuture.completedFuture(null);
 
         dfsStack.push(node); // push root
         if (node.equals(theTarget) && currentWeight <= weightLimit) {
+            if(allPaths.size()>=maximumRouteCount)return CompletableFuture.completedFuture(null);
             List<T> path = new ArrayList<>(dfsStack);
             Collections.reverse(path);
-            allPaths.add(path); // add to path 转储路径
+            allPaths.add(path);// add to path 转储路径
             System.out.println(path);
             return CompletableFuture.completedFuture(null);
         } else {
@@ -220,7 +226,7 @@ public class GraphSearch<T> {
 
             if (currentNode == null || G.isNodeNotIn(currentNode)) continue;
 
-            if (currentDepth > maximumOutDegree) continue;
+            if (currentDepth > maximumRouteCount) continue;
 
             dfsStack.push(currentNode);
             if (currentNode.equals(theTarget) && currentWeight <= weightLimit) {
@@ -281,7 +287,7 @@ public class GraphSearch<T> {
             if (x == null) continue;
             int index = G.getIndexOfObject(x);
             if (!wasVisited[index]) {
-                if (maximumOutDegree == 0 || path.size() < maximumOutDegree) dfsV0(nodes.get(i));
+                if (maximumRouteCount == 0 || path.size() < maximumRouteCount) dfsV0(nodes.get(i));
             }
             if (i == nodes.size() - 1) {
                 path.pop();
@@ -317,7 +323,7 @@ public class GraphSearch<T> {
             int index = G.getIndexOfObject(x);
             if (!wasVisited[index]) {
                 int currentWeight = weight + G.getWeight(root, x);
-                if (maximumOutDegree == 0 || path.size() < maximumOutDegree)
+                if (maximumRouteCount == 0 || path.size() < maximumRouteCount)
                     dfsV1(nodes.get(i), currentWeight); // pass weight to next node
             }
             if (i == nodes.size() - 1) {

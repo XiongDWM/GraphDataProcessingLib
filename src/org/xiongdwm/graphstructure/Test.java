@@ -32,11 +32,11 @@ public class Test {
         graphStructure.make(5L, Arrays.asList(node5),new int []{0,5});
         graphStructure.init();
         GraphSearch<Long> dfs = new GraphSearch<Long>(graphStructure, 1L,GraphSearch.Manipulate.DEPTH_FIRST,null , 3L, 6, null,100);
-        CompletableFuture<Void>c=dfs.startRetrieve();
-        c.join();
-        System.out.println(c.isDone());
-        System.out.println(c.getNumberOfDependents());
-        System.out.println(dfs.getAllPaths(true));
+        //        CompletableFuture<Void>c=dfs.startRetrieve();
+//        c.join();
+//        System.out.println(c.isDone());
+//        System.out.println(c.getNumberOfDependents());
+            System.out.println(dfs.getAllPaths(true));
 //        CompletableFuture<Void>c1=dfs.startRetrieveNonRecursive();
 //        System.out.println(dfs.startRetrieve().isDone());
 

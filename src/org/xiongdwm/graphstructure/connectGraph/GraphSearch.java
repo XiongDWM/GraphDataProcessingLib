@@ -140,7 +140,8 @@ public class GraphSearch<T> {
                 bfs(root);
                 break;
             case DEPTH_FIRST:
-                forkJoinPool=Executors.newFixedThreadPool(32);
+//                forkJoinPool=Executors.newFixedThreadPool(32);
+                dfsV1(root,0);
                 break;
             case DJKSTRA:
                 djkstra(root);

@@ -21,7 +21,7 @@ public class GraphSearch<T> {
     private final List<Edge<T>> minConnection = new ArrayList<>();
     private int weightLimit;
     private final Object lock=new Object();
-    private ForkJoinPool forkJoinPool;
+    private ExecutorService forkJoinPool;
     private T gRoot;
 //    private final List<CompletableFuture<Void>> allFutures = Collections.synchronizedList(new ArrayList<>());
 
@@ -140,7 +140,7 @@ public class GraphSearch<T> {
                 bfs(root);
                 break;
             case DEPTH_FIRST:
-                forkJoinPool=new ForkJoinPool(32);
+                forkJoinPool=Executors.newFixedThreadPool(32);
                 break;
             case DJKSTRA:
                 djkstra(root);

@@ -13,7 +13,7 @@ public class GraphSearch<T> {
     private final T[] edgeTo;
     private final GraphStructure<T> G;
     private T theTarget;
-//    private final ConcurrentLinkedQueue<List<T>> allPaths = new ConcurrentLinkedQueue<>();
+    private final List<List<T>> allPathsNonThread = new LinkedList<>();
     Set<List<T>> allPaths = Collections.synchronizedSet(new HashSet<>());
     private final Stack<T> path = new Stack<>(); //get a path 一条路径
     private int maximumRouteCount; // to limit the path length, 规定路径出度，也就时最多跳数
@@ -77,7 +77,6 @@ public class GraphSearch<T> {
                 bfs(root);
                 break;
             case DEPTH_FIRST:
-                dfsV0(root);
                 break;
             case DJKSTRA:
                 djkstra(root);
@@ -263,39 +262,6 @@ public class GraphSearch<T> {
         return rootFuture;
     }
 
-    private void dfsV0(T root) {
-        if (G.isNodeNotIn(root)) return;
-        if (dominator != null && G.isNodeNotIn(dominator)) return;
-        if (root.equals(theTarget)) {
-            path.push(root);
-            List<T> list = new ArrayList<>(path); //store path 转储
-            if (dominator != null) {
-                if (list.contains(dominator)) allPaths.add(list);
-            } else {
-                allPaths.add(list);
-            }
-            path.pop();
-            wasVisited[G.getIndexOfObject(root)] = false;
-            return;
-        }
-        List<T> nodes = G.get(root); //adjacency matrix of root at this term 所有子节点
-        wasVisited[G.getIndexOfObject(root)] = true;
-        path.push(root);
-        for (int i = 0; i < nodes.size(); i++) {
-            T x = nodes.get(i);
-            if (x == null) continue;
-            int index = G.getIndexOfObject(x);
-            if (!wasVisited[index]) {
-                if (maximumRouteCount == 0 || path.size() < maximumRouteCount) dfsV0(nodes.get(i));
-            }
-            if (i == nodes.size() - 1) {
-                path.pop();
-                wasVisited[G.getIndexOfObject(root)] = false;
-                return;
-            }
-        }
-    }
-
     private void dfsV1(T root, int weight) {
         if (G.isNodeNotIn(root)) return;
         if (dominator != null && G.isNodeNotIn(dominator)) return;
@@ -303,17 +269,19 @@ public class GraphSearch<T> {
         if (root.equals(theTarget)) {
             if (weight > weightLimit) return;// check if weight is within limit
             path.push(root);
-            List<T> list = new ArrayList<>(path); //store path 转储
+            List<T> list = new ArrayList<>(path); // store path 转储
             if (dominator != null) {
-                if (list.contains(dominator)) allPaths.add(list);
+                if (list.contains(dominator)) allPathsNonThread.add(list);
             } else {
-                allPaths.add(list);
+                System.out.println(list);
+                allPathsNonThread.add(list);
             }
             path.pop();
             wasVisited[G.getIndexOfObject(root)] = false;
             return;
         }
-        List<T> nodes = G.get(root); //adjacency matrix of root at this term 所有子节点
+        List<T> nodes = G.get(root); // adjacency matrix of root at this term 所有子节点
+        if(nodes.isEmpty())return;
         wasVisited[G.getIndexOfObject(root)] = true;
         path.push(root);
         for (int i = 0; i < nodes.size(); i++) {
@@ -322,11 +290,9 @@ public class GraphSearch<T> {
             int index = G.getIndexOfObject(x);
             if (!wasVisited[index]) {
                 int currentWeight = weight + G.getWeight(root, x);
-                if (maximumRouteCount == 0 || path.size() < maximumRouteCount)
-                    dfsV1(nodes.get(i), currentWeight); // pass weight to next node
+                dfsV1(nodes.get(i), currentWeight); // pass weight to next node
             }
             if (i == nodes.size() - 1) {
-                path.pop();
                 wasVisited[G.getIndexOfObject(root)] = false;
                 return;
             }
@@ -382,7 +348,7 @@ public class GraphSearch<T> {
             //either every single node has unless 1 path to its previous node or it cannot add to path set
             record.add(target);
             this.theTarget = root;
-            this.dfsV0(target);
+//            this.dfsV0(target);
             int step = this.getAllPaths(false).size();
             if (step < 2) continue;
             minConnection.add(new Edge<>(root, target));
@@ -437,7 +403,7 @@ public class GraphSearch<T> {
     }
 
     public List<List<T>> getAllPaths(boolean sortedOrNot) {
-        List<List<T>>paths=new LinkedList<>(allPaths);
+        List<List<T>>paths=new LinkedList<>(allPathsNonThread);
         if (sortedOrNot) pathOrderByWeight(paths);
         return Collections.unmodifiableList(paths);
     }

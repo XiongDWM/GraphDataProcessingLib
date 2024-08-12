@@ -6,7 +6,7 @@ import org.xiongdwm.graphstructure.utils.geometry.GeoAbstract;
 import java.lang.reflect.Array;
 import java.util.*;
 
-public class Cluster {
+public class KAlgorithm {
     private final GeoAbstract geoMethods;
     private static Node<?>[] nodeArray = new Node[0];
     private static int k_num = 0;
@@ -14,7 +14,7 @@ public class Cluster {
     private final static Class<?> clazz = Node.class;
     private final boolean[] unChange;
 
-    public Cluster(GeoAbstract geoMethods, Node<?>[] nodes) {
+    public KAlgorithm(GeoAbstract geoMethods, Node<?>[] nodes) {
         nodeArray = nodes;
         this.geoMethods = geoMethods;
         this.nodesCount = nodes.length;

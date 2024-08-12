@@ -6,6 +6,7 @@ public class Node<T>{
     private Number y;
     private Integer weight;
 
+
     public Node(){
 
     }

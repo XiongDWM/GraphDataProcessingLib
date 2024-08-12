@@ -9,5 +9,6 @@ public abstract class GeoAbstract {
     public abstract Node<?> getEquilibriumPoint(List<Node<?>> nodes);
     public abstract Node<?> getCoordinate(Number x,Number y,Double dis);
     public abstract double calDis(Number x1,Number y1,Number x2,Number y2);
+    public abstract double getDisSqrt(Number x1,Number y1,Number x2,Number y2);
     public abstract double calculateVariance(Node<?>[] points);
 }

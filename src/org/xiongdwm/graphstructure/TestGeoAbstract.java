@@ -44,6 +44,11 @@ public class TestGeoAbstract extends GeoAbstract {
     }
 
     @Override
+    public double getDisSqrt(Number x1, Number y1, Number x2, Number y2) {
+        return Math.sqrt(Math.pow(x1.doubleValue() - x2.doubleValue(), 2) + Math.pow(y1.doubleValue() - y2.doubleValue(), 2));
+    }
+
+    @Override
     public double calculateVariance(Node<?>[] points) {
         double meanX = 0.0;
         double meanY = 0.0;

@@ -1,21 +1,26 @@
 # graph_data_processing_lib
 ## Interpretation: construction of connected-graph-format data and methods for path searching, clustering methods for discrete data structure
 ## A. discrete 离散
-### Provide the container for data and clustring methods for such data (just k-means for now)提供数据的容器，并能对数据做聚类（只实现了k-means算法）
-### 1. Node--container 节点--容器
+### 1. Provide the container for data and clustring methods for data（k-means） 提供数据的容器，并能对数据做聚类(k-means)
+### 1.1 Node 节点
     variables：
         uniqueTag: since if we need clustering a set of data which defined by a lot of members variables, we don't expect all these members variables to go 
         throw the clustering methods, so we can extract and store the unique tag for these data in the container "Node" 当我们想对一组有很多成员变量描述数据做聚类时，
         我们不希望将整个数据结构带到聚类的方法里去循环，那么我们可以从数据中提取唯一的标记然后储存到“Node”这个容器里
         x and y: params which is needed for clustering data with coordinate 在对有坐标的数据进行聚类时，需要x和y的值
         weight: params which is needed for clustering data with values 在对有权值的数据聚类时需要传
-### 2. Cluster 簇
+### 1.2 Cluster 簇
     variables:
         geoMethod: method for calculate center 计算中心点的方法作为成员变量传入
         nodes: set of data 数据集
     methods: 
          randomPoints: randomly pick data from nodes as initial cluter, 从数据集中随机选取初始簇
          clustering: clustering loop
+### 2. Provide the container for data and clustring methods for data（DBSCAN） 提供数据的容器，并能对数据做聚类(DBSCAN)
+### 2.1 DBNode 节点
+    aaaa
+### 2.2 DBSCAN
+    bbbb
 ## B. connected graph 连接图
 ### To organized data in a graph structure in java and then can do breadth-first search or depth-first search in such graph. 将数据组织成图结构，并能做深搜广搜等搜索
 ### 1. To build a graph within GraphStructure 图结构建立 

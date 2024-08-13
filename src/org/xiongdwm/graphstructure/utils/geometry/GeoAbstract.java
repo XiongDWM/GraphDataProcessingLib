@@ -1,14 +1,13 @@
 package org.xiongdwm.graphstructure.utils.geometry;
 
-import org.xiongdwm.graphstructure.discrete.Node;
+import org.xiongdwm.graphstructure.discrete.WeightedNode;
 
 import java.util.List;
 
 public abstract class GeoAbstract {
-    public abstract Node<?> getEquilibriumPoint(Number x1,Number y1,Number x2,Number y2);
-    public abstract Node<?> getEquilibriumPoint(List<Node<?>> nodes);
-    public abstract Node<?> getCoordinate(Number x,Number y,Double dis);
+    public abstract WeightedNode<?> getEquilibriumPoint(Number x1, Number y1, Number x2, Number y2);
+    public abstract WeightedNode<?> getEquilibriumPoint(List<WeightedNode<?>> nodes);
+    public abstract WeightedNode<?> getCoordinate(Number x, Number y, Double dis);
     public abstract double calDis(Number x1,Number y1,Number x2,Number y2);
-    public abstract double getDisSqrt(Number x1,Number y1,Number x2,Number y2);
-    public abstract double calculateVariance(Node<?>[] points);
+    public abstract double calculateVariance(WeightedNode<?>[] points);
 }

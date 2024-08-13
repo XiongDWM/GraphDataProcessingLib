@@ -1,8 +1,6 @@
 package org.xiongdwm.graphstructure.discrete;
 
-/**
- * 管道节点
- */
+
 public class ContextNode {
     private Long id;
     private boolean isPoi;

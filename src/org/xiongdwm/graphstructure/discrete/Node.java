@@ -1,26 +1,12 @@
 package org.xiongdwm.graphstructure.discrete;
 
-public class Node<T>{
-    private T uniqueTag;
+public class Node {
+    private boolean wasVisited=false;
+    private int groupId=-1;
     private Number x;
     private Number y;
-    private Integer weight;
 
-    public Node(){
-
-    }
-
-    public Node(T uniqueTag, Number x, Number y, Integer weight) {
-        this.uniqueTag = uniqueTag;
-        this.x = x;
-        this.y = y;
-        this.weight = weight;
-    }
-
-    public Node(T uniqueTag, Number x, Number y) {
-        this.uniqueTag = uniqueTag;
-        this.x = x;
-        this.y = y;
+    public Node() {
     }
 
     public Node(Number x, Number y) {
@@ -28,12 +14,20 @@ public class Node<T>{
         this.y = y;
     }
 
-    public T getUniqueTag() {
-        return uniqueTag;
+    public boolean isWasVisited() {
+        return wasVisited;
     }
 
-    public void setUniqueTag(T uniqueTag) {
-        this.uniqueTag = uniqueTag;
+    public void setWasVisited(boolean wasVisited) {
+        this.wasVisited = wasVisited;
+    }
+
+    public int getGroupId() {
+        return groupId;
+    }
+
+    public void setGroupId(int groupId) {
+        this.groupId = groupId;
     }
 
     public Number getX() {
@@ -52,31 +46,11 @@ public class Node<T>{
         this.y = y;
     }
 
-    public Integer getWeight() {
-        return weight;
-    }
-
-    public void setWeight(Integer weight) {
-        this.weight = weight;
-    }
-
-    @Override
-    public int hashCode() {
-        return super.hashCode();
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        return super.equals(obj);
-    }
-
     @Override
     public String toString() {
-        return "Node{" +
-                "uniqueTag=" + uniqueTag +
-                ", x=" + x +
-                ", y=" + y +
-                ", weight=" + weight +
+        return "DBNode{" +
+                "x=" + this.x +
+                ", y=" + this.y +
                 '}';
     }
 }

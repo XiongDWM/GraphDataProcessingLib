@@ -1,5 +1,7 @@
 package org.xiongdwm.graphstructure.connectGraph;
 
+import org.xiongdwm.graphstructure.exception.WrongMemberException;
+
 import java.lang.reflect.Array;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -7,32 +9,40 @@ import java.util.stream.Collectors;
 /**
  * @author xiong
  * @version 1.06 01/06/2023
- * @overall-description put the data into a graph structure 图结构
+ * @overall-description form data into a graph structure 图结构
  * @ver-description store weight x保存边权值
  */
 public class GraphStructure<T> {
-    private  int nodesNum;
+    private int nodesNum;
     private T[] nodes;
-    private  T[][] matrix;
-    private  List<Edge<T>> edges;
-    private  Class<?> clazz;
+    private Map<T,List<T>> matrix;
+    private final List<Edge<T>> edges;
+    private final Class<?> clazz;
     private Map<String, Integer> weightMap; // 新增的 Map 对象
 
-    @SuppressWarnings("unchecked")
+    public GraphStructure(){
+        this.edges=new ArrayList<>();
+        this.clazz=null;
+        matrix= new HashMap<>();
+        weightMap = new HashMap<>(); // 初始化 Map 对象
+    }
+
     public GraphStructure(T[] nodes){
         this.nodes=nodes;
         this.nodesNum= nodes.length;
         this.edges=new ArrayList<>();
         this.clazz=nodes[0].getClass();
-        matrix= (T[][]) Array.newInstance(clazz,nodesNum,nodesNum);
+        matrix= new HashMap<>();
         weightMap = new HashMap<>(); // 初始化 Map 对象
-        for(int i=0;i<nodesNum;i++){
-            matrix[i]= (T[]) Array.newInstance(clazz,nodesNum);
-        }
     }
 
-    public GraphStructure() {
+    @SuppressWarnings("unchecked")
+    public void init(){
+        if(null==matrix) throw new WrongMemberException("matrix is empty");
+        nodes=matrix.keySet().toArray((T[])Array.newInstance(clazz,0));
+        nodesNum=nodes.length;
     }
+
 
     public T[] getNodes() {
         return nodes;
@@ -43,57 +53,37 @@ public class GraphStructure<T> {
     }
 
     //if T is not basic data type, need to rewrite methods 'equal'&'hashCode' 如果是对象则需要重写实体类的equals方法
-    public boolean isNodeIn(T obj){
+    public boolean isNodeNotIn(T obj){
         return !Arrays.asList(this.nodes).contains(obj);
     }
-    @SuppressWarnings("unchecked")
-    public T[] get(T obj){
-        T[] ex=(T[]) Array.newInstance(clazz,nodesNum);
-        if(isNodeIn(obj)) return ex;
-        int index=getIndexOfObject(obj);
-        return matrix[index];
+
+    public List<T> get(T obj){
+        if(isNodeNotIn(obj)) return Collections.emptyList();
+        return matrix.get(obj);
     }
 
-    @SuppressWarnings("unchecked")
-    public void make(T node,T[] context){
+    public void make(T node,List<T> context,int[] weight){
         List<T>list=new ArrayList<>();
         for(T o:context){
-            if(!isNodeIn(o)) list.add(o);
+            if(!isNodeNotIn(o)) list.add(o);
         }
-        T[] e=(T[])Array.newInstance(clazz,0);
-        Array.set(matrix,getIndexOfObject(node), list.toArray(e));
+        matrix.put(node, list);
         list=null;
-        e=null;
+        for (int i = 0; i < context.size(); i++) {
+            edges.add(new Edge<>(node, context.get(i), weight[i]));
+            weightMap.put(node.toString() + "-" + context.get(i).toString(), weight[i]); // 将边的权值存储到 Map 中
+        }
+    }
+
+    public void make(T node,List<T> context){
+        List<T>list=new ArrayList<>();
+        for(T o:context){
+            if(!isNodeNotIn(o)) list.add(o);
+        }
+        matrix.put(node, list);
+        list=null;
         for (T o : context) {
             edges.add(new Edge<>(node, o));
-        }
-    }
-
-    @SuppressWarnings("unchecked")
-    public void makeWithOutEdge(T node,T[] context){
-        List<T>list=new ArrayList<>();
-        for(T o:context){
-            if(!isNodeIn(o)) list.add(o);
-        }
-        T[] e=(T[])Array.newInstance(clazz,0);
-        Array.set(matrix,getIndexOfObject(node), list.toArray(e));
-        list.clear();
-        e=null;
-    }
-
-    @SuppressWarnings("unchecked")
-    public void make(T node,T[] context,int[] weight){
-        List<T>list=new ArrayList<>();
-        for(T o:context){
-            if(!isNodeIn(o)) list.add(o);
-        }
-        T[] e=(T[])Array.newInstance(clazz,0);
-        Array.set(matrix,getIndexOfObject(node), list.toArray(e));
-        list=null;
-        e=null;
-        for (int i = 0; i < context.length; i++) {
-            edges.add(new Edge<>(node, context[i], weight[i]));
-            weightMap.put(node.toString() + "-" + context[i].toString(), weight[i]); // 将边的权值存储到 Map 中
         }
     }
 
@@ -126,15 +116,15 @@ public class GraphStructure<T> {
         return Arrays.asList(nodes).indexOf(obj);
     }
 
-    public T[] getRow(int index){
-        return matrix[index];
+    public List<T> getRow(int index){
+        return matrix.get(nodes[index]);
     }
 
     public int getNodesNum() {
         return nodesNum;
     }
 
-    public T[][] getMatrix() {
+    public Map<T, List<T>> getMatrix() {
         return matrix;
     }
 
@@ -147,7 +137,7 @@ public class GraphStructure<T> {
      * @return edge set，
      */
     public List<Edge<T>> tailed(){
-        if(get(this.nodes[0]).length==1)return Collections.emptyList(); //出度为1的直接返回;if out-degree for start node is 1, return empty
+        if(get(this.nodes[0]).size()==1)return Collections.emptyList(); //出度为1的直接返回;if out-degree for start node is 1, return empty
         List<T> nodesList=new ArrayList<>(Arrays.asList(this.nodes)); //参与的所有节点
 
         Queue<T> queue=new ArrayDeque<>(nodesList); //加入队列
@@ -156,12 +146,12 @@ public class GraphStructure<T> {
         do{
             T node=queue.poll();
             if(node==null)continue;
-            T[] out=get(node); //get方法是取到当前节点连接的节点
-            List<T> temp=new ArrayList<>(Arrays.asList(out));
+            List<T> out=get(node); //get方法是取到当前节点连接的节点
+            List<T> temp=new ArrayList<>(out);
             temp.removeAll(trashBin); //去掉出度中已经计算出的单个连接边节点；get rid of connected nodes which already stored in trashBin
             int outDegree=temp.size();
             if(outDegree==1){
-                queue.add(out[0]);  //add the only connected-node to queue
+                queue.add(out.get(0));  //add the only connected-node to queue
                 trashBin.add(node);
             }
         }while (!queue.isEmpty());
@@ -170,8 +160,8 @@ public class GraphStructure<T> {
     }
 
     private List<Edge<T>> getEdgeByNode(T node,Set<T> trash){
-        T[] array=get(node);
-        return Arrays.stream(array).filter(it->!trash.contains(it)&&it!=null).map(o-> new Edge<>(node, o)).collect(Collectors.toList());
+        List<T> array=get(node);
+        return array.stream().filter(it->!trash.contains(it)&&it!=null).map(o-> new Edge<>(node, o)).collect(Collectors.toList());
     }
     //最小连通子图
     public List<Edge<T>> minTailed(){
@@ -184,6 +174,5 @@ public class GraphStructure<T> {
         }
         return min;
     }
-
 
 }

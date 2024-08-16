@@ -1,6 +1,6 @@
 package org.xiongdwm.graphstructure;
 
-import org.xiongdwm.graphstructure.discrete.Node;
+import org.xiongdwm.graphstructure.discrete.WeightedNode;
 import org.xiongdwm.graphstructure.utils.geometry.GeoAbstract;
 
 import java.math.BigDecimal;
@@ -9,17 +9,17 @@ import java.util.List;
 
 public class TestGeoAbstract extends GeoAbstract {
     @Override
-    public Node<?> getEquilibriumPoint(Number x1, Number y1, Number x2, Number y2) {
+    public WeightedNode<?> getEquilibriumPoint(Number x1, Number y1, Number x2, Number y2) {
         double y=Math.abs(y1.doubleValue()+y2.doubleValue())/2;
         double x=Math.abs(x1.doubleValue()+x2.doubleValue())/2;
-        return new Node<>(x,y);
+        return new WeightedNode<>(x,y);
     }
 
     @Override
-    public Node<?> getEquilibriumPoint(List<Node<?>> nodes) {
+    public WeightedNode<?> getEquilibriumPoint(List<WeightedNode<?>> nodes) {
         double sumx=0d;
         double sumy=0d;
-        for(Node<?>n:nodes){
+        for(WeightedNode<?> n:nodes){
             sumx+=n.getX().doubleValue();
             sumy+=n.getY().doubleValue();
         }
@@ -28,11 +28,11 @@ public class TestGeoAbstract extends GeoAbstract {
         double x=bigDecimal.setScale(3, RoundingMode.HALF_UP).doubleValue();
         bigDecimal=new BigDecimal(sumy/count);
         double y=bigDecimal.setScale(3, RoundingMode.HALF_UP).doubleValue();
-        return new Node<>(x,y);
+        return new WeightedNode<>(x,y);
     }
 
     @Override
-    public Node<?> getCoordinate(Number x, Number y, Double dis) {
+    public WeightedNode<?> getCoordinate(Number x, Number y, Double dis) {
         return null;
     }
 
@@ -43,13 +43,17 @@ public class TestGeoAbstract extends GeoAbstract {
         return h+w;
     }
 
+    public double getDisSqrt(Number x1, Number y1, Number x2, Number y2) {
+        return Math.sqrt(Math.pow(x1.doubleValue() - x2.doubleValue(), 2) + Math.pow(y1.doubleValue() - y2.doubleValue(), 2));
+    }
+
     @Override
-    public double calculateVariance(Node<?>[] points) {
+    public double calculateVariance(WeightedNode<?>[] points) {
         double meanX = 0.0;
         double meanY = 0.0;
 
         // Calculate means
-        for (Node<?> point : points) {
+        for (WeightedNode<?> point : points) {
             meanX += point.getX().doubleValue();
             meanY += point.getY().doubleValue();
         }
@@ -58,7 +62,7 @@ public class TestGeoAbstract extends GeoAbstract {
 
         // Calculate variance
         double variance = 0.0;
-        for (Node<?> point : points) {
+        for (WeightedNode<?> point : points) {
             variance += Math.pow(point.getX().doubleValue() - meanX, 2) + Math.pow(point.getY().doubleValue() - meanY, 2);
         }
         variance /= points.length;

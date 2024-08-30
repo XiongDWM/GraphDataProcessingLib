@@ -1,9 +1,7 @@
 package org.xiongdwm.graphstructure.discrete;
 
-import org.xiongdwm.graphstructure.TestGeoAbstract;
 import org.xiongdwm.graphstructure.exception.PolyShapeBuildException;
 import org.xiongdwm.graphstructure.utils.LineIntersection;
-import org.xiongdwm.graphstructure.utils.geometry.GeoAbstract;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -48,6 +46,7 @@ public class DBSCAN {
         }
         return neighbors;
     }
+
     private double getDisSqrt(Number x1,Number y1,Number x2,Number y2){
         return Math.sqrt(Math.pow(x1.doubleValue() - x2.doubleValue(), 2) + Math.pow(y1.doubleValue() - y2.doubleValue(), 2));
 
@@ -90,7 +89,7 @@ public class DBSCAN {
         return result;
     }
 
-    public double findEpsilon(int k) {  // generally, k's value is equal to minPts's value
+    public double findEpsilon(int k) {  // generally, k equal to minPts
         List<Double> distances = new ArrayList<>();
 
         for (Node point : points) {
@@ -118,16 +117,13 @@ public class DBSCAN {
         return distances.get(elbowIndex);
     }
 
-    //getConvexhull
+    //get Convex hull
     public List<Node> grahamScan(List<Node> nodes) throws Exception {
-        // points less than 3 cannot combine as a shape;
+        // points less than 3 always are collinear or can say this specific cluster is too small to be noticed, there are no `edge` for such cluster;
         if (nodes.size() < 3) throw new PolyShapeBuildException("points less than 3 cannot combine as a shape");
-
         nodes.sort(Comparator.comparing(it->it.getX().doubleValue()));
-
         // Check if all points are collinear
         if (areCollinear(nodes)) throw new PolyShapeBuildException("points are collinear");
-
         // lower hull
         List<Node> lower = new ArrayList<>();
         for (Node p : nodes) {
@@ -136,7 +132,6 @@ public class DBSCAN {
             }
             lower.add(p);
         }
-
         // upper hull
         List<Node> upper = new ArrayList<>();
         for (int i = nodes.size() - 1; i >= 0; i--) {
@@ -148,8 +143,7 @@ public class DBSCAN {
         }
         lower.remove(lower.size() - 1);
         upper.remove(upper.size() - 1);
-
-        // make the full hull
+        // combine as the full hull
         lower.addAll(upper);
         return lower;
     }
@@ -170,32 +164,34 @@ public class DBSCAN {
         return true;
     }
 
-    public static void main(String[] args) throws Exception {
+    //run this if still has doubts about the functionality of above functions
+    public static void main(String[] args) {
         List<Node> points = new ArrayList<>();
-        points.add(new Node(30, 140));
-        points.add(new Node(30, 142));
-        points.add(new Node(30, 147));
-        points.add(new Node(31,150));
-        points.add(new Node(32, 142));
-        points.add(new Node(28, 147));
-        points.add(new Node(18, 122));
-        points.add(new Node(18, 123));
-        points.add(new Node(18, 127));
-        points.add(new Node(20, 123));
-        points.add(new Node(20, 127));
-        points.add(new Node(80, 160));
-        points.add(new Node(80, 157));
-        points.add(new Node(83, 153));
-        points.add(new Node(88, 163));
-        points.add(new Node(86, 155));
+        points.add(new Node(1723804495426L, 1400));
+        points.add(new Node(1723804495430L, 1402));
+        points.add(new Node(1723804495428L, 1407));
+        points.add(new Node(1723804495423L,1500));
+        points.add(new Node(1723804495426L, 1402));
+        points.add(new Node(1723804495425L, 1407));
+        points.add(new Node(1723804495525L, 1202));
+        points.add(new Node(1723804495527L, 1203));
+        points.add(new Node(1723804495529L, 1207));
+        points.add(new Node(1723804495528L, 1203));
+        points.add(new Node(1723804495529L, 1207));
+        points.add(new Node(1723804495325L, 1600));
+        points.add(new Node(1723804495328L, 1570));
+        points.add(new Node(1723804495327L, 1573));
+        points.add(new Node(1723804495330L, 1603));
+        points.add(new Node(1723804495323L, 1550));
         DBSCAN dbscan = new DBSCAN(points);
         int minPts = 3;
         double eps = dbscan.findEpsilon(minPts);
-        List<Node>polyLine=new ArrayList<>();
-        polyLine.add(new Node(10, 70));
-        polyLine.add(new Node(29, 141));
-        polyLine.add(new Node(31, 151));
-//        polyLine.add(new Node(60, 157));
+        System.out.println(eps);
+        List<Node>polyLine=new ArrayList<>(); //nodes not in cluster
+        polyLine.add(new Node(1723804495420L, 1390));
+        polyLine.add(new Node(1723804495426L, 1410));
+        polyLine.add(new Node(1723804495430L, 1500));
+        polyLine.add(new Node(1723804495428L, 1000));
         List<List<Node>> clusters = dbscan.fit(eps, minPts,true);
         int i=1;
         List<Node>hull=clusters.get(0);

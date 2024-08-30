@@ -2,7 +2,7 @@
 ## Interpretation: construction of connected-graph-format data and methods for path searching, clustering methods for discrete data points，spatial search
 ## A. Clustering of Discrete Points 对离散点的聚类
 ### 1. Provide the container for data and clustring methods for data（k-means） 提供数据的容器，并能对数据做聚类(k-means)
-### 1.1. Node 节点
+### 1.1. WeightedNode 节点
     variables：
         uniqueTag: since if we need clustering a set of data which defined by a lot of members variables, we don't expect all these members variables to go 
         throw the clustering methods, so we can extract and store the unique tag for these data in the container "Node" 当我们想对一组有很多成员变量描述数据做聚类时，

@@ -51,6 +51,7 @@ public class Node {
         return "DBNode{" +
                 "x=" + this.x +
                 ", y=" + this.y +
+                ", group="+ this.groupId+
                 '}';
     }
 }

@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 public class GraphStructure<T> {
     private int nodesNum;
     private T[] nodes;
-    private Map<T,List<T>> matrix;
+    private final Map<T,List<T>> matrix;
     private final List<Edge<T>> edges;
     private final Class<?> clazz;
     private Map<String, Integer> weightMap; // 新增的 Map 对象

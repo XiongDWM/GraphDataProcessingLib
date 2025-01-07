@@ -167,40 +167,46 @@ public class DBSCAN {
     //run this if still has doubts about the functionality of above functions
     public static void main(String[] args) {
         List<Node> points = new ArrayList<>();
-        points.add(new Node(1723804495426L, 1400));
-        points.add(new Node(1723804495430L, 1402));
-        points.add(new Node(1723804495428L, 1407));
-        points.add(new Node(1723804495423L,1500));
-        points.add(new Node(1723804495426L, 1402));
-        points.add(new Node(1723804495425L, 1407));
-        points.add(new Node(1723804495525L, 1202));
-        points.add(new Node(1723804495527L, 1203));
-        points.add(new Node(1723804495529L, 1207));
-        points.add(new Node(1723804495528L, 1203));
-        points.add(new Node(1723804495529L, 1207));
-        points.add(new Node(1723804495325L, 1600));
-        points.add(new Node(1723804495328L, 1570));
-        points.add(new Node(1723804495327L, 1573));
-        points.add(new Node(1723804495330L, 1603));
-        points.add(new Node(1723804495323L, 1550));
+        points.add(new Node(1000, 17));
+        points.add(new Node(1000, 19));
+        points.add(new Node(1000,20)); //1
+        points.add(new Node(1000,97));
+
+        points.add(new Node(1000, 30)); //3
+        points.add(new Node(1000, 27));
+        points.add(new Node(1000, 90));
+        points.add(new Node(1000, 33));
+//
+//        points.add(new Node(1000, 1207));
+//        points.add(new Node(1000, 1203));
+//        points.add(new Node(1000, 1400)); //2
+//        points.add(new Node(1000, 1405)); //2
+//
+//        points.add(new Node(1000, 1307)); //4
+//        points.add(new Node(1000, 1585));
+//        points.add(new Node(1000, 1600));
+//        points.add(new Node(1000, 1570));
+
         DBSCAN dbscan = new DBSCAN(points);
         int minPts = 3;
-        double eps = dbscan.findEpsilon(minPts);
+        double eps = 10;
         System.out.println(eps);
-        List<Node>polyLine=new ArrayList<>(); //nodes not in cluster
-        polyLine.add(new Node(1723804495420L, 1390));
-        polyLine.add(new Node(1723804495426L, 1410));
-        polyLine.add(new Node(1723804495430L, 1500));
-        polyLine.add(new Node(1723804495428L, 1000));
-        List<List<Node>> clusters = dbscan.fit(eps, minPts,true);
-        int i=1;
-        List<Node>hull=clusters.get(0);
-        boolean isCross=LineIntersection.doesPolylineIntersectHull(polyLine,hull);
-        System.out.println(isCross);
-        for (List<Node> cluster : clusters) {
-            System.out.println("Cluster: "+i);
-            System.out.println(cluster);
-            i++;
-        }
+//        List<Node>polyLine=new ArrayList<>(); //nodes not in cluster
+//        polyLine.add(new Node(1723804495420L, 1390));
+//        polyLine.add(new Node(1723804495426L, 1410));
+//        polyLine.add(new Node(1723804495430L, 1500));
+//        polyLine.add(new Node(1723804495428L, 1000));
+        List<List<Node>> clusters = dbscan.fit(eps, minPts,false);
+        System.out.println(clusters);
+
+//        int i=1;
+//        List<Node>hull=clusters.get(0);
+//        boolean isCross=LineIntersection.doesPolylineIntersectHull(polyLine,hull);
+//        System.out.println(isCross);
+//        for (List<Node> cluster : clusters) {
+//            System.out.println("Cluster: "+i);
+//            System.out.println(cluster);
+//            i++;
+//        }
     }
 }

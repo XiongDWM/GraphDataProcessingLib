@@ -11,7 +11,6 @@ public class KAlgorithm {
     private static WeightedNode<?>[] nodeArray = new WeightedNode[0];
     private static int k_num = 0;
     private final int nodesCount;
-    private final static Class<?> clazz = WeightedNode.class;
     private final boolean[] unChange;
 
     public KAlgorithm(GeoAbstract geoMethods, WeightedNode<?>[] nodes) {
@@ -46,11 +45,10 @@ public class KAlgorithm {
                 System.arraycopy(randomPoints, 0, result, 0, amount);
                 maxVariance = variance;
             }
-            //System.out.println(maxVariance);
         }
-
         return result;
     }
+
     private WeightedNode<?>[] getRandomPoints(int amount) {
         WeightedNode<?>[] points = new WeightedNode<?>[amount];
         Random random = new Random();

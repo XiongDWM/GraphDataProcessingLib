@@ -4,6 +4,7 @@ import org.xiongdwm.graphstructure.exception.WrongMemberException;
 
 import java.lang.reflect.Array;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 /**
@@ -12,33 +13,47 @@ import java.util.stream.Collectors;
  * @overall-description form data into a graph structure 图结构
  * @ver-description store weight x保存边权值
  */
+
 public class GraphStructure<T> {
     private int nodesNum;
     private T[] nodes;
-    private Map<T,List<T>> matrix;
+    private final ConcurrentHashMap<T,List<T>> matrix;
     private final List<Edge<T>> edges;
-    private final Class<?> clazz;
-    private Map<String, Integer> weightMap; // 新增的 Map 对象
+    private Class<?> clazz;
+    private ConcurrentHashMap<String, Integer> weightMap; // 新增的 Map 对象
 
     public GraphStructure(){
         this.edges=new ArrayList<>();
         this.clazz=null;
-        matrix= new HashMap<>();
-        weightMap = new HashMap<>(); // 初始化 Map 对象
+        matrix= new ConcurrentHashMap<>();
+        weightMap = new ConcurrentHashMap<>(); // 初始化 Map 对象
     }
+
+    public GraphStructure(Class<?> clazz){
+        this.edges=new ArrayList<>();
+        this.clazz=clazz;
+        matrix= new ConcurrentHashMap<>();
+        weightMap = new ConcurrentHashMap<>(); // 初始化 Map 对象
+    }
+
 
     public GraphStructure(T[] nodes){
         this.nodes=nodes;
         this.nodesNum= nodes.length;
         this.edges=new ArrayList<>();
         this.clazz=nodes[0].getClass();
-        matrix= new HashMap<>();
-        weightMap = new HashMap<>(); // 初始化 Map 对象
+        matrix=new ConcurrentHashMap<>();
+        weightMap =new ConcurrentHashMap<>(); // 初始化 Map 对象
     }
 
     @SuppressWarnings("unchecked")
     public void init(){
         if(null==matrix) throw new WrongMemberException("matrix is empty");
+        if(null==clazz)matrix.keySet().stream().findAny().ifPresent(it->{
+            this.clazz=it.getClass();
+            System.out.println(clazz.getName());
+        });
+        if(null==clazz)throw new WrongMemberException("clazz undefine");
         nodes=matrix.keySet().toArray((T[])Array.newInstance(clazz,0));
         nodesNum=nodes.length;
     }
@@ -49,6 +64,7 @@ public class GraphStructure<T> {
     }
 
     public void setNodes(T[] nodes) {
+        if(null==clazz)this.clazz=nodes[0].getClass();
         this.nodes = nodes;
     }
 
@@ -57,16 +73,13 @@ public class GraphStructure<T> {
         return !Arrays.asList(this.nodes).contains(obj);
     }
 
-    public List<T> get(T obj){
+    public synchronized List<T> get(T obj){
         if(isNodeNotIn(obj)) return Collections.emptyList();
         return matrix.get(obj);
     }
 
     public void make(T node,List<T> context,int[] weight){
-        List<T>list=new ArrayList<>();
-        for(T o:context){
-            if(!isNodeNotIn(o)) list.add(o);
-        }
+        List<T> list = new ArrayList<>(context);
         matrix.put(node, list);
         list=null;
         for (int i = 0; i < context.size(); i++) {
@@ -92,7 +105,7 @@ public class GraphStructure<T> {
     }
 
     public void setWeightMap(Map<String,Integer>weightMap){
-        this.weightMap=weightMap;
+        this.weightMap=new ConcurrentHashMap<>(weightMap);
     }
 
     // 修改后的 getWeight 方法
